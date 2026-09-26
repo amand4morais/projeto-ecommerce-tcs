@@ -1,0 +1,16 @@
+# Ambiente virtual
+.venv/
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# Banco de dados SQLite (gerado automaticamente pelo servidor)
+*.db
+*.sqlite3
+
+# Pacotes para instalação offline (gerados localmente)
+pacotes_offline/
+
+# Configurações locais do editor
+.vscode/
