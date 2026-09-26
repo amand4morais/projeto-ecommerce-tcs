@@ -1,0 +1,116 @@
+:root {
+  --tinta: #16263a;
+  --papel: #f3f5f2;
+  --superficie: #ffffff;
+  --linha: #c9d1cc;
+  --apagado: #5b6b66;
+  --ligado: #2e8b57;
+  --desligado: #b23a3a;
+  --fonte: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --fonte-dados: Consolas, "Cascadia Mono", "DejaVu Sans Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font: 16px/1.5 var(--fonte);
+}
+
+.painel {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.cabecalho h1 { margin: 0; font-size: 1.75rem; font-weight: 600; }
+.subtitulo { margin: 4px 0 24px; color: var(--apagado); }
+
+.controle {
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 28px;
+}
+
+.estado {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.lampada {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--desligado);
+}
+.estado[data-rodando="true"] .lampada {
+  background: var(--ligado);
+  box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.2);
+}
+
+label { display: block; font-weight: 600; margin-bottom: 6px; }
+
+.linha-porta { display: flex; flex-wrap: wrap; gap: 10px; }
+
+input {
+  width: 9rem;
+  padding: 10px 12px;
+  font: 1.1rem var(--fonte-dados);
+  border: 1px solid var(--linha);
+  border-radius: 4px;
+  color: var(--tinta);
+}
+
+.botao {
+  padding: 10px 18px;
+  font: 600 1rem var(--fonte);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+}
+.botao-iniciar { background: var(--ligado); }
+.botao-parar { background: var(--desligado); }
+.botao:disabled, input:disabled { opacity: 0.45; cursor: not-allowed; }
+
+input:focus-visible, .botao:focus-visible {
+  outline: 3px solid var(--tinta);
+  outline-offset: 2px;
+}
+
+.aviso { min-height: 1.5em; margin: 12px 0 0; }
+.aviso.erro { color: var(--desligado); }
+
+.registro h2 { font-size: 1.15rem; margin: 0 0 10px; }
+
+.tabela-rolagem {
+  overflow: auto;
+  max-height: 420px;
+  background: var(--superficie);
+  border: 1px solid var(--linha);
+  border-radius: 6px;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--linha); }
+th { position: sticky; top: 0; background: var(--superficie); color: var(--apagado); font-weight: 600; }
+td { font-family: var(--fonte-dados); }
+tr.vazio td { font-family: var(--fonte); color: var(--apagado); }
+
+.status-ok { color: var(--ligado); font-weight: 600; }
+.status-erro { color: var(--desligado); font-weight: 600; }
+
+.visualmente-oculto {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel do servidor — E-commerce</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='painel.css') }}">
+</head>
+<body>
+  <main class="painel">
+    <header class="cabecalho">
+      <h1>Servidor de reservas</h1>
+      <p class="subtitulo">API REST /api/v1, seguindo o protocolo da turma</p>
+    </header>
+
+    <section class="controle" aria-labelledby="titulo-controle">
+      <h2 id="titulo-controle" class="visualmente-oculto">Controle da API</h2>
+
+      <div class="estado" id="estado" data-rodando="false">
+        <span class="lampada" aria-hidden="true"></span>
+        <span id="texto-estado">API parada</span>
+      </div>
+
+      <label for="porta">Porta da API</label>
+      <div class="linha-porta">
+        <input id="porta" type="text" inputmode="numeric" maxlength="5" placeholder="ex.: 8080" autocomplete="off">
+        <button id="botao-iniciar" type="button" class="botao botao-iniciar">Iniciar API</button>
+        <button id="botao-parar" type="button" class="botao botao-parar" disabled>Parar API</button>
+      </div>
+      <p class="aviso" id="mensagem" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="registro" aria-labelledby="titulo-log">
+      <h2 id="titulo-log">Requisições recebidas</h2>
+      <div class="tabela-rolagem">
+        <table>
+          <thead>
+            <tr><th>Hora</th><th>Origem</th><th>Método</th><th>Caminho</th><th>Status</th></tr>
+          </thead>
+          <tbody id="linhas-log">
+            <tr class="vazio"><td colspan="5">Nenhuma requisição ainda. Inicie a API e aguarde os clientes.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="{{ url_for('static', filename='painel.js') }}"></script>
+</body>
+</html>

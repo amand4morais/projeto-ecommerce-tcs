@@ -27,5 +27,28 @@ pip install -r requirements.txt
 Se o PowerShell bloquear a ativação:
 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` (uma única vez).
 
-## Execução
-_A definir na sub-etapa 2 (servidor e cliente ainda não implementados)._
+## Execução do servidor
+Com o ambiente virtual ativo, na pasta do projeto:
+
+```powershell
+python servidor/main.py
+```
+
+1. Abra http://127.0.0.1:5000 no navegador (painel, acessível só nesta máquina).
+2. Digite a porta da API (1024 a 65535, exceto 5000 e 5001) e clique em **Iniciar API**.
+3. A API fica disponível em `http://<IP desta máquina>:<porta>/api/v1` para toda a rede.
+   O IP pode ser consultado com `ipconfig` (campo "Endereço IPv4").
+4. Se o Windows perguntar sobre o Firewall, permita o acesso do Python à rede.
+5. Para encerrar: **Parar API** no painel e `Ctrl+C` no terminal.
+
+O banco `servidor/ecommerce.db` é criado automaticamente na primeira execução.
+
+## Execução do cliente
+_A definir (sub-etapa 5)._
+
+## Testes automatizados
+Na pasta do projeto, com o ambiente virtual ativo:
+
+```powershell
+python -m unittest discover -s servidor -v
+```
