@@ -2,6 +2,8 @@ import os
 import sqlite3
 from contextlib import closing
 
+from flask import current_app, g
+
 CAMINHO_BANCO_PADRAO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ecommerce.db")
 
 ESQUEMA = """
@@ -32,3 +34,15 @@ def inicializar_banco(caminho_banco):
     with closing(conectar(caminho_banco)) as conexao:
         conexao.executescript(ESQUEMA)
         conexao.commit()
+
+
+def obter_conexao():
+    if "conexao" not in g:
+        g.conexao = conectar(current_app.config["CAMINHO_BANCO"])
+    return g.conexao
+
+
+def fechar_conexao(_erro=None):
+    conexao = g.pop("conexao", None)
+    if conexao is not None:
+        conexao.close()

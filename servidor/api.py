@@ -1,7 +1,9 @@
 from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
 
-from banco import CAMINHO_BANCO_PADRAO, inicializar_banco
+from banco import CAMINHO_BANCO_PADRAO, fechar_conexao, inicializar_banco
+from rotas_usuarios import rotas_usuarios
+from validacao import ErroValidacao
 
 PREFIXO = "/api/v1"
 
@@ -25,6 +27,8 @@ def criar_api(log, caminho_banco=CAMINHO_BANCO_PADRAO):
     app.url_map.merge_slashes = False
 
     inicializar_banco(caminho_banco)
+    app.register_blueprint(rotas_usuarios, url_prefix=PREFIXO)
+    app.teardown_appcontext(fechar_conexao)
 
     @app.before_request
     def responder_preflight():
@@ -39,6 +43,10 @@ def criar_api(log, caminho_banco=CAMINHO_BANCO_PADRAO):
         resposta.headers.update(CABECALHOS_CORS)
         log.registrar(request.remote_addr, request.method, request.path, resposta.status_code)
         return resposta
+
+    @app.errorhandler(ErroValidacao)
+    def tratar_erro_validacao(erro):
+        return jsonify(mensagem=str(erro)), 400
 
     @app.errorhandler(HTTPException)
     def tratar_erro_http(erro):
