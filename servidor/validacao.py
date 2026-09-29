@@ -55,3 +55,10 @@ def validar_usuario_completo(dados):
         "email": validar_email(obter_texto(dados, "email")),
         "senha": validar_senha(obter_texto(dados, "senha")),
     }
+
+
+def validar_login(dados):
+    return {
+        "email": validar_email(obter_texto(dados, "email")),
+        "senha": validar_senha(obter_texto(dados, "senha")),
+    }
