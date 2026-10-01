@@ -4,7 +4,7 @@ from werkzeug.exceptions import HTTPException
 from autenticacao import ErroAutenticacao
 from banco import CAMINHO_BANCO_PADRAO, fechar_conexao, inicializar_banco
 from rotas_sessoes import rotas_sessoes
-from rotas_usuarios import rotas_usuarios
+from rotas_usuarios import ErroRequisicao, rotas_usuarios
 from validacao import ErroValidacao
 
 PREFIXO = "/api/v1"
@@ -54,6 +54,10 @@ def criar_api(log, caminho_banco=CAMINHO_BANCO_PADRAO):
     @app.errorhandler(ErroAutenticacao)
     def tratar_erro_autenticacao(_erro):
         return jsonify(mensagem="Token ausente ou inválido."), 401
+
+    @app.errorhandler(ErroRequisicao)
+    def tratar_erro_requisicao(erro):
+        return jsonify(mensagem=erro.mensagem), erro.status
 
     @app.errorhandler(HTTPException)
     def tratar_erro_http(erro):

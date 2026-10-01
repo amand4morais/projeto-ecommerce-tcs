@@ -2,6 +2,7 @@ import re
 
 PADRAO_EMAIL = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
 PADRAO_SENHA = re.compile(r"[a-zA-Z0-9]+")
+PADRAO_ID = re.compile(r"[0-9]+")
 
 
 class ErroValidacao(Exception):
@@ -62,3 +63,17 @@ def validar_login(dados):
         "email": validar_email(obter_texto(dados, "email")),
         "senha": validar_senha(obter_texto(dados, "senha")),
     }
+
+
+def validar_usuario_parcial(dados):
+    validadores = {"nome": validar_nome, "email": validar_email, "senha": validar_senha}
+    campos = {campo: validar(obter_texto(dados, campo)) for campo, validar in validadores.items() if campo in dados}
+    if not campos:
+        raise ErroValidacao("Envie ao menos um dos campos: nome, email ou senha.")
+    return campos
+
+
+def validar_id_usuario(texto):
+    if not PADRAO_ID.fullmatch(texto):
+        raise ErroValidacao("O id do usuário deve ser um número inteiro.")
+    return int(texto)
