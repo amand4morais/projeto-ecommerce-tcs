@@ -44,11 +44,20 @@ python servidor/main.py
 O banco `servidor/ecommerce.db` é criado automaticamente na primeira execução.
 
 ## Execução do cliente
-_A definir (sub-etapa 5)._
+Com o ambiente virtual ativo, na pasta do projeto (em outro terminal, se o servidor também estiver rodando):
+
+```powershell
+python cliente/main.py
+```
+
+1. Abra http://127.0.0.1:5001 no navegador.
+2. Preencha o **IP** e a **porta** do servidor que será usado (o próprio ou o de um colega).
+3. O painel **Comunicação** mostra cada requisição enviada e a resposta recebida.
 
 ## Testes automatizados
 Na pasta do projeto, com o ambiente virtual ativo:
 
 ```powershell
 python -m unittest discover -s servidor -v
+python -m unittest discover -s cliente -v
 ```

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cliente — E-commerce</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='cliente.css') }}">
+</head>
+<body>
+  <header class="topo">
+    <h1>Cliente de reservas</h1>
+    <div class="destino" role="group" aria-label="Servidor de destino">
+      <label>IP do servidor
+        <input id="host" type="text" placeholder="ex.: 192.168.0.10" autocomplete="off" spellcheck="false">
+      </label>
+      <label>Porta
+        <input id="porta" type="text" inputmode="numeric" maxlength="5" placeholder="ex.: 8080" autocomplete="off">
+      </label>
+    </div>
+  </header>
+
+  <main class="conteudo">
+    <section class="conta" id="area-conta" aria-labelledby="titulo-conta">
+      <h2 id="titulo-conta">Conta</h2>
+      <p class="apagado">Informe o IP e a porta do servidor para começar.</p>
+    </section>
+
+    <section class="comunicacao" aria-labelledby="titulo-comunicacao">
+      <div class="cabecalho-secao">
+        <h2 id="titulo-comunicacao">Comunicação</h2>
+        <button id="botao-limpar" type="button" class="botao-secundario">Limpar</button>
+      </div>
+      <ol id="lista-comunicacao" class="lista-comunicacao" aria-live="polite">
+        <li class="vazio">Nenhuma requisição enviada ainda.</li>
+      </ol>
+    </section>
+  </main>
+  <script src="{{ url_for('static', filename='cliente.js') }}"></script>
+</body>
+</html>
