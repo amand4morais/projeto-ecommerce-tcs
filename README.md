@@ -51,7 +51,8 @@ python cliente/main.py
 ```
 
 1. Abra http://127.0.0.1:5001 no navegador.
-2. Preencha o **IP** e a **porta** do servidor que será usado (o próprio ou o de um colega).
+2. Preencha o **IP** e a **porta** do servidor (o próprio ou o de um colega) e clique em **Conectar**.
+   Cada servidor tem o próprio banco: para usar o servidor de um colega, crie uma conta nele.
 3. O painel **Comunicação** mostra cada requisição enviada e a resposta recebida.
 
 ## Testes automatizados

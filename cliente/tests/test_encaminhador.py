@@ -43,7 +43,7 @@ class ServidorFalso(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(dados)
 
-    do_GET = do_POST = do_PUT = do_PATCH = do_DELETE = responder
+    do_GET = do_POST = do_PUT = do_PATCH = do_DELETE = do_OPTIONS = responder
 
 
 def porta_fechada():
@@ -102,6 +102,12 @@ class TestEnviar(unittest.TestCase):
         self.enviar(metodo="POST", caminho="/users", corpo={"nome": 123, "email": None})
         self.assertEqual(ServidorFalso.recebidas[0]["corpo"], {"nome": 123, "email": None})
 
+    def test_repassa_options_para_conectar(self):
+        r = self.enviar(metodo="OPTIONS", caminho="/users")
+        self.assertEqual(r.get_json()["status"], 201)
+        [recebida] = ServidorFalso.recebidas
+        self.assertEqual((recebida["metodo"], recebida["caminho"], recebida["corpo"]), ("OPTIONS", "/api/v1/users", None))
+
     def test_resposta_que_nao_e_json(self):
         dados = self.enviar(caminho="/html").get_json()
         self.assertEqual((dados["status"], dados["corpo"], dados["texto"]), (500, None, "<h1>Erro</h1>"))
@@ -125,7 +131,7 @@ class TestEnviar(unittest.TestCase):
         casos = [
             {"host": ""}, {"host": "1.2.3.4/x"}, {"host": "a b"}, {"host": "user@host"}, {"host": None},
             {"porta": ""}, {"porta": "0"}, {"porta": "70000"}, {"porta": "abc"}, {"porta": True},
-            {"metodo": "OPTIONS"}, {"metodo": "get"},
+            {"metodo": "HEAD"}, {"metodo": "get"},
             {"caminho": "users"}, {"caminho": "/users?x=1"}, {"caminho": "/users#a"}, {"caminho": None},
         ]
         for caso in casos:

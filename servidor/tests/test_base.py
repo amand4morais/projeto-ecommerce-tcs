@@ -181,7 +181,7 @@ class TestControleEPainelComRedeReal(unittest.TestCase):
         resposta = requests.get(f"http://127.0.0.1:{porta}/api/v1/xyz", timeout=5)
         self.assertEqual(resposta.status_code, 404)
         self.assertIn("mensagem", resposta.json())
-        self.assertEqual(len(self.painel.get("/log?desde=0").get_json()), 2)
+        self.assertEqual(len(self.painel.get("/log?desde=0").get_json()["registros"]), 2)
 
         self.assertEqual(self.painel.post("/iniciar", json={"porta": str(porta)}).status_code, 400)
         self.assertEqual(self.painel.post("/parar", json={}).status_code, 200)
@@ -199,6 +199,11 @@ class TestControleEPainelComRedeReal(unittest.TestCase):
     def test_painel_recusa_post_sem_json(self):
         r = self.painel.post("/iniciar", data="porta=8080", content_type="application/x-www-form-urlencoded")
         self.assertEqual(r.status_code, 415)
+
+    def test_log_identifica_a_execucao(self):
+        dados = self.painel.get("/log?desde=0").get_json()
+        self.assertEqual(dados, {"execucao": self.log.execucao, "registros": []})
+        self.assertNotEqual(LogRequisicoes().execucao, self.log.execucao)
 
     def test_pagina_do_painel(self):
         r = self.painel.get("/")

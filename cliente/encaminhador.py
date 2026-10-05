@@ -5,7 +5,7 @@ import requests
 PREFIXO = "/api/v1"
 TEMPO_LIMITE = 5
 LIMITE_TEXTO = 2000
-METODOS = {"GET", "POST", "PUT", "PATCH", "DELETE"}
+METODOS = {"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
 PADRAO_HOST = re.compile(r"[A-Za-z0-9.-]+")
 PADRAO_CAMINHO = re.compile(r"/[A-Za-z0-9/_.%-]*")
 

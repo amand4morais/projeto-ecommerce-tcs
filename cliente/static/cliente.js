@@ -1,4 +1,5 @@
 const CHAVE_SESSAO = "sessao";
+const CHAVE_CONEXAO = "conexao";
 const MENSAGENS_PADRAO = {
   400: "Requisição inválida.",
   401: "Sessão inválida ou expirada. Faça login novamente.",
@@ -29,6 +30,22 @@ function limparSessao() {
   sessionStorage.removeItem(CHAVE_SESSAO);
 }
 
+function obterConexao() {
+  try {
+    return JSON.parse(sessionStorage.getItem(CHAVE_CONEXAO));
+  } catch {
+    return null;
+  }
+}
+
+function salvarConexao(conexao) {
+  sessionStorage.setItem(CHAVE_CONEXAO, JSON.stringify(conexao));
+}
+
+function limparConexao() {
+  sessionStorage.removeItem(CHAVE_CONEXAO);
+}
+
 function mensagemDaResposta(status, corpo) {
   if (corpo && typeof corpo.mensagem === "string") return corpo.mensagem;
   return MENSAGENS_PADRAO[status] || `O servidor respondeu com status ${status}.`;
@@ -46,7 +63,9 @@ function criarElemento(tag, classe, texto) {
 }
 
 function formatarCorpo(corpo) {
-  return typeof corpo === "string" ? corpo : JSON.stringify(corpo, null, 2);
+  if (typeof corpo === "string") return corpo;
+  const exibido = typeof corpo?.token === "string" ? { ...corpo, token: mascararToken(corpo.token) } : corpo;
+  return JSON.stringify(exibido, null, 2);
 }
 
 function registrarEnvio(metodo, url, corpo, token) {

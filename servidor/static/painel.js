@@ -7,6 +7,7 @@ const mensagem = document.getElementById("mensagem");
 const linhasLog = document.getElementById("linhas-log");
 
 let ultimoIdLog = 0;
+let execucaoLog = null;
 
 function mostrarMensagem(texto, ehErro) {
   mensagem.textContent = texto;
@@ -58,15 +59,37 @@ function adicionarLinhas(registros) {
   }
 }
 
+function reiniciarTabela() {
+  linhasLog.replaceChildren();
+  const linha = document.createElement("tr");
+  linha.className = "vazio";
+  const celula = document.createElement("td");
+  celula.colSpan = 5;
+  celula.textContent = "Nenhuma requisição ainda. Inicie a API e aguarde os clientes.";
+  linha.appendChild(celula);
+  linhasLog.appendChild(linha);
+  ultimoIdLog = 0;
+}
+
+async function buscarLog() {
+  let log = await fetch(`/log?desde=${ultimoIdLog}`).then((r) => r.json());
+  if (log.execucao !== execucaoLog) {
+    // O servidor foi reiniciado: a numeração do log recomeçou.
+    if (execucaoLog !== null) {
+      reiniciarTabela();
+      log = await fetch("/log?desde=0").then((r) => r.json());
+    }
+    execucaoLog = log.execucao;
+  }
+  adicionarLinhas(log.registros);
+}
+
 async function atualizar() {
   try {
-    const [estado, registros] = await Promise.all([
-      fetch("/estado").then((r) => r.json()),
-      fetch(`/log?desde=${ultimoIdLog}`).then((r) => r.json()),
-    ]);
-    aplicarEstado(estado);
-    adicionarLinhas(registros);
+    aplicarEstado(await fetch("/estado").then((r) => r.json()));
+    await buscarLog();
   } catch (erro) {
+    // Painel fora do ar: tenta de novo no próximo ciclo.
   }
 }
 

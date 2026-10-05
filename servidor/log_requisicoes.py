@@ -1,3 +1,4 @@
+import secrets
 import threading
 from collections import deque
 from datetime import datetime
@@ -7,6 +8,7 @@ LIMITE_REGISTROS = 200
 
 class LogRequisicoes:
     def __init__(self, limite=LIMITE_REGISTROS):
+        self.execucao = secrets.token_hex(8)
         self._registros = deque(maxlen=limite)
         self._proximo_id = 1
         self._trava = threading.Lock()

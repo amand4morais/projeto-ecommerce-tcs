@@ -41,6 +41,6 @@ def criar_painel(controle, log):
     def ler_log():
         desde = request.args.get("desde", "0")
         desde_id = int(desde) if desde.isdigit() else 0
-        return jsonify(log.listar(desde_id))
+        return jsonify(execucao=log.execucao, registros=log.listar(desde_id))
 
     return app

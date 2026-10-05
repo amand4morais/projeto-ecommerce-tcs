@@ -9,20 +9,52 @@
 <body>
   <header class="topo">
     <h1>Cliente de reservas</h1>
-    <div class="destino" role="group" aria-label="Servidor de destino">
-      <label>IP do servidor
-        <input id="host" type="text" placeholder="ex.: 192.168.0.10" autocomplete="off" spellcheck="false">
-      </label>
-      <label>Porta
-        <input id="porta" type="text" inputmode="numeric" maxlength="5" placeholder="ex.: 8080" autocomplete="off">
-      </label>
+    <div class="conexao">
+      <div class="destino" role="group" aria-label="Servidor de destino">
+        <label>IP do servidor
+          <input id="host" type="text" placeholder="ex.: 192.168.0.10" autocomplete="off" spellcheck="false">
+        </label>
+        <label>Porta
+          <input id="porta" type="text" inputmode="numeric" maxlength="5" placeholder="ex.: 8080" autocomplete="off">
+        </label>
+        <button id="botao-conectar" type="button" class="botao-conectar">Conectar</button>
+        <button id="botao-desconectar" type="button" class="botao-desconectar" hidden>Desconectar</button>
+      </div>
+      <p id="estado-conexao" class="estado-conexao" role="status" aria-live="polite"></p>
     </div>
   </header>
 
   <main class="conteudo">
     <section class="conta" id="area-conta" aria-labelledby="titulo-conta">
       <h2 id="titulo-conta">Conta</h2>
-      <p class="apagado">Informe o IP e a porta do servidor para começar.</p>
+      <p id="aviso-conexao" class="apagado">Conecte-se a um servidor para entrar ou criar uma conta.</p>
+
+      <div id="tela-visitante" hidden>
+        <div class="abas" role="tablist">
+          <button id="aba-entrar" type="button" role="tab" aria-selected="true" aria-controls="form-entrar">Entrar</button>
+          <button id="aba-cadastro" type="button" role="tab" aria-selected="false" aria-controls="form-cadastro">Criar conta</button>
+        </div>
+
+        <form id="form-entrar" class="formulario" role="tabpanel" aria-labelledby="aba-entrar" novalidate>
+          <label>E-mail <input name="email" type="text" autocomplete="username" spellcheck="false"></label>
+          <label>Senha <input name="senha" type="password" autocomplete="current-password"></label>
+          <button type="submit" class="botao-principal">Entrar</button>
+        </form>
+
+        <form id="form-cadastro" class="formulario" role="tabpanel" aria-labelledby="aba-cadastro" novalidate hidden>
+          <label>Nome <input name="nome" type="text" autocomplete="name"></label>
+          <label>E-mail <input name="email" type="text" autocomplete="email" spellcheck="false"></label>
+          <label>Senha <input name="senha" type="password" autocomplete="new-password"></label>
+          <button type="submit" class="botao-principal">Criar conta</button>
+        </form>
+      </div>
+
+      <div id="tela-logado" hidden>
+        <p class="identificacao">Conectado como <strong id="nome-logado"></strong> <span id="email-logado" class="apagado"></span></p>
+        <button id="botao-sair" type="button" class="botao-secundario">Sair</button>
+      </div>
+
+      <p id="mensagem-conta" class="mensagem" role="status" aria-live="polite"></p>
     </section>
 
     <section class="comunicacao" aria-labelledby="titulo-comunicacao">
@@ -36,5 +68,6 @@
     </section>
   </main>
   <script src="{{ url_for('static', filename='cliente.js') }}"></script>
+  <script src="{{ url_for('static', filename='conta.js') }}"></script>
 </body>
 </html>
