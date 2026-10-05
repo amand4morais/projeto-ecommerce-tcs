@@ -125,6 +125,7 @@ async function entrar(evento) {
   formEntrar.reset();
   mostrarMensagem("");
   exibirTela();
+  document.dispatchEvent(new CustomEvent("sessao-iniciada"));
 }
 
 async function sair() {

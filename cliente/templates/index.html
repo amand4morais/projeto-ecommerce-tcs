@@ -27,6 +27,7 @@
   <main class="conteudo">
     <section class="conta" id="area-conta" aria-labelledby="titulo-conta">
       <h2 id="titulo-conta">Conta</h2>
+      <p id="mensagem-conta" class="mensagem" role="status" aria-live="polite"></p>
       <p id="aviso-conexao" class="apagado">Conecte-se a um servidor para entrar ou criar uma conta.</p>
 
       <div id="tela-visitante" hidden>
@@ -52,9 +53,30 @@
       <div id="tela-logado" hidden>
         <p class="identificacao">Conectado como <strong id="nome-logado"></strong> <span id="email-logado" class="apagado"></span></p>
         <button id="botao-sair" type="button" class="botao-secundario">Sair</button>
-      </div>
 
-      <p id="mensagem-conta" class="mensagem" role="status" aria-live="polite"></p>
+        <div class="bloco">
+          <div class="cabecalho-secao">
+            <h3>Meus dados</h3>
+            <button id="botao-consultar" type="button" class="botao-secundario">Consultar dados</button>
+          </div>
+          <dl id="lista-dados" class="lista-dados"></dl>
+          <p id="dica-dados" class="apagado">Clique em "Consultar dados" para buscar seu cadastro no servidor.</p>
+        </div>
+
+        <form id="form-editar" class="formulario bloco" novalidate>
+          <h3>Editar dados</h3>
+          <label>Nome <input name="nome" type="text" autocomplete="name"></label>
+          <label>E-mail <input name="email" type="text" autocomplete="email" spellcheck="false"></label>
+          <label><span>Nova senha <span class="opcional">(opcional)</span></span> <input name="senha" type="password" autocomplete="new-password"></label>
+          <button type="submit" class="botao-principal">Salvar alterações</button>
+        </form>
+
+        <div class="bloco">
+          <h3>Excluir conta</h3>
+          <p class="apagado">Remove seu cadastro deste servidor.</p>
+          <button id="botao-excluir" type="button" class="botao-perigo">Excluir conta</button>
+        </div>
+      </div>
     </section>
 
     <section class="comunicacao" aria-labelledby="titulo-comunicacao">
@@ -67,7 +89,17 @@
       </ol>
     </section>
   </main>
+
+  <dialog id="dialogo-exclusao" class="dialogo" aria-labelledby="titulo-exclusao">
+    <h3 id="titulo-exclusao">Excluir conta?</h3>
+    <p>Tem certeza? Esta ação não pode ser desfeita.</p>
+    <div class="acoes-dialogo">
+      <button id="botao-cancelar-exclusao" type="button" class="botao-secundario">Cancelar</button>
+      <button id="botao-confirmar-exclusao" type="button" class="botao-perigo">Excluir</button>
+    </div>
+  </dialog>
   <script src="{{ url_for('static', filename='cliente.js') }}"></script>
   <script src="{{ url_for('static', filename='conta.js') }}"></script>
+  <script src="{{ url_for('static', filename='meus_dados.js') }}"></script>
 </body>
 </html>

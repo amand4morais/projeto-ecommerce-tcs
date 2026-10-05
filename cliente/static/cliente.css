@@ -153,10 +153,37 @@ input:disabled { background: #e3e7e4; color: var(--apagado); cursor: not-allowed
 }
 button:disabled { opacity: 0.5; cursor: wait; }
 
+h3 { font-size: 1rem; margin: 0; }
+.bloco { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--linha); }
+.bloco > h3 { margin-bottom: 8px; }
+.bloco .apagado { margin-bottom: 12px; }
+
+.lista-dados { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 12px 0 0; }
+.lista-dados:empty { display: none; }
+.lista-dados dt { font-weight: 600; color: var(--apagado); }
+.lista-dados dd { margin: 0; font-family: var(--fonte-dados); word-break: break-all; }
+
+.botao-perigo {
+  padding: 8px 16px;
+  font: 600 0.95rem var(--fonte);
+  background: var(--falha);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.dialogo { border: 1px solid var(--linha); border-radius: 6px; padding: 24px; max-width: 360px; color: var(--tinta); }
+.dialogo::backdrop { background: rgba(22, 38, 58, 0.45); }
+.dialogo p { margin: 8px 0 20px; }
+.acoes-dialogo { display: flex; justify-content: flex-end; gap: 10px; }
+
 .identificacao { margin: 0 0 4px; font-size: 1.05rem; }
 #tela-logado .apagado { margin-bottom: 16px; }
 .identificacao { margin-bottom: 16px; }
 
-.mensagem { min-height: 1.5em; margin: 16px 0 0; }
+.mensagem { margin: 0 0 16px; padding: 8px 12px; border-radius: 4px; background: var(--papel); }
+.mensagem:empty { display: none; }
+.opcional { font-weight: 400; color: var(--apagado); }
 .mensagem[data-tipo="sucesso"] { color: var(--sucesso); }
 .mensagem[data-tipo="erro"] { color: var(--falha); }
