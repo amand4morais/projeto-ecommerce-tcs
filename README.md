@@ -42,6 +42,11 @@ python servidor/main.py
 5. Para encerrar: **Parar API** no painel e `Ctrl+C` no terminal.
 
 O banco `servidor/ecommerce.db` é criado automaticamente na primeira execução.
+Se ele for de uma versão anterior do projeto, a API não inicia e o painel pede para apagá-lo.
+
+### ADM padrão
+Sempre que a API inicia, o servidor cria o ADM padrão do protocolo, caso ele ainda não exista:
+`Admin` / `adm@teste.com` / `admin123`. Não altere nem remova esse usuário durante a avaliação.
 
 ## Execução do cliente
 Com o ambiente virtual ativo, na pasta do projeto (em outro terminal, se o servidor também estiver rodando):

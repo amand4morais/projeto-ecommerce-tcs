@@ -25,7 +25,7 @@ class TestCadastroUsuario(unittest.TestCase):
 
     def usuarios_no_banco(self):
         with closing(sqlite3.connect(self.caminho_banco)) as c:
-            return c.execute("SELECT id, nome, email, senha_hash FROM users").fetchall()
+            return c.execute("SELECT id, nome, email, senha_hash FROM users WHERE admin = 0").fetchall()
 
     def assertErro(self, resposta, status):
         self.assertEqual(resposta.status_code, status, resposta.get_data(as_text=True))
@@ -35,16 +35,17 @@ class TestCadastroUsuario(unittest.TestCase):
     def test_cadastro_valido(self):
         r = self.cadastrar()
         self.assertEqual(r.status_code, 201)
-        self.assertEqual(r.get_json(), {"id": 1, "nome": "Maria Silva", "email": "maria@exemplo.com"})
+        self.assertEqual(r.get_json(), {"id": 2, "nome": "Maria Silva", "email": "maria@exemplo.com", "admin": False})
         self.assertEqual(r.headers["Access-Control-Allow-Origin"], "*")
+        self.assertEqual(r.headers["Location"], "/api/v1/users/2")
         [(id_, nome, email, senha_hash)] = self.usuarios_no_banco()
-        self.assertEqual((id_, nome, email), (1, "Maria Silva", "maria@exemplo.com"))
+        self.assertEqual((id_, nome, email), (2, "Maria Silva", "maria@exemplo.com"))
         self.assertNotIn("Senha123", senha_hash)
 
     def test_ids_sequenciais(self):
         self.cadastrar()
         r = self.cadastrar(email="joao@exemplo.com")
-        self.assertEqual(r.get_json()["id"], 2)
+        self.assertEqual(r.get_json()["id"], 3)
 
     def test_nome_com_trim(self):
         r = self.cadastrar(nome="   Ana   ")
@@ -117,11 +118,15 @@ class TestCadastroUsuario(unittest.TestCase):
     def test_campos_extras_e_id_no_corpo_ignorados(self):
         r = self.cadastrar(id=99, admin=True, idade=30)
         self.assertEqual(r.status_code, 201)
-        self.assertEqual(r.get_json(), {"id": 1, "nome": "Maria Silva", "email": "maria@exemplo.com"})
+        self.assertEqual(r.get_json(), {"id": 2, "nome": "Maria Silva", "email": "maria@exemplo.com", "admin": False})
+        self.assertEqual(len(self.usuarios_no_banco()), 1)
 
     def test_outros_metodos_em_users_retornam_405(self):
-        self.assertErro(self.cliente.get(URL), 405)
         self.assertErro(self.cliente.delete(URL), 405)
+        self.assertErro(self.cliente.put(URL, json=VALIDO), 405)
+
+    def test_email_do_adm_padrao_da_409(self):
+        self.assertErro(self.cadastrar(email="ADM@teste.com"), 409)
 
 
 if __name__ == "__main__":

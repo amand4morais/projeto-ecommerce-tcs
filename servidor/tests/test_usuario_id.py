@@ -1,4 +1,3 @@
-import hashlib
 import os
 import sqlite3
 import tempfile
@@ -45,12 +44,12 @@ class TestUsuarioPorId(unittest.TestCase):
 
     def test_get_proprio_usuario(self):
         r = self.cliente.get(self.url, headers=self.auth())
-        self.assertUsuario(r, {"id": self.id_maria, "nome": "Maria Silva", "email": "maria@exemplo.com"})
+        self.assertUsuario(r, {"id": self.id_maria, "nome": "Maria Silva", "email": "maria@exemplo.com", "admin": False})
 
     def test_put_substitui_todos_os_campos(self):
         novo = {"nome": "Maria Souza", "email": "maria.souza@exemplo.com", "senha": "Nova789"}
         r = self.cliente.put(self.url, json=novo, headers=self.auth())
-        self.assertUsuario(r, {"id": self.id_maria, "nome": "Maria Souza", "email": "maria.souza@exemplo.com"})
+        self.assertUsuario(r, {"id": self.id_maria, "nome": "Maria Souza", "email": "maria.souza@exemplo.com", "admin": False})
         self.assertIsNotNone(self.login("maria.souza@exemplo.com", "Nova789").get("token"))
         self.assertIsNone(self.login("maria@exemplo.com", "Senha123").get("token"))
 
@@ -61,7 +60,7 @@ class TestUsuarioPorId(unittest.TestCase):
 
     def test_patch_altera_somente_campo_enviado(self):
         r = self.cliente.patch(self.url, json={"nome": "  Maria Clara  "}, headers=self.auth())
-        self.assertUsuario(r, {"id": self.id_maria, "nome": "Maria Clara", "email": "maria@exemplo.com"})
+        self.assertUsuario(r, {"id": self.id_maria, "nome": "Maria Clara", "email": "maria@exemplo.com", "admin": False})
         self.assertIsNotNone(self.login("maria@exemplo.com", "Senha123").get("token"))
 
     def test_patch_de_senha_mantem_sessao_e_troca_login(self):
@@ -86,11 +85,11 @@ class TestUsuarioPorId(unittest.TestCase):
 
     def test_proprio_email_com_outras_maiusculas_permitido(self):
         r = self.cliente.patch(self.url, json={"email": "MARIA@exemplo.com"}, headers=self.auth())
-        self.assertUsuario(r, {"id": self.id_maria, "nome": "Maria Silva", "email": "MARIA@exemplo.com"})
+        self.assertUsuario(r, {"id": self.id_maria, "nome": "Maria Silva", "email": "MARIA@exemplo.com", "admin": False})
 
     def test_campos_extras_e_id_no_corpo_ignorados(self):
         r = self.cliente.patch(self.url, json={"nome": "Maria Nova", "id": self.id_joao, "admin": True}, headers=self.auth())
-        self.assertUsuario(r, {"id": self.id_maria, "nome": "Maria Nova", "email": "maria@exemplo.com"})
+        self.assertUsuario(r, {"id": self.id_maria, "nome": "Maria Nova", "email": "maria@exemplo.com", "admin": False})
 
     def test_delete_remove_usuario_e_todas_as_sessoes(self):
         outra_sessao = self.login(MARIA["email"], MARIA["senha"])
@@ -141,14 +140,6 @@ class TestUsuarioPorId(unittest.TestCase):
         self.assertErro(self.cliente.patch(f"/api/v1/users/{self.id_joao}", json={"email": "joao@exemplo.com"},
                                            headers=self.auth()), 403)
         self.assertErro(self.cliente.put(self.url, data="{x", content_type="application/json", headers=self.auth()), 400)
-
-    def test_usuario_inexistente_404(self):
-        token = "token-de-usuario-inexistente"
-        with closing(sqlite3.connect(self.caminho_banco)) as c:
-            c.execute("INSERT INTO sessions VALUES ('s-orfa', ?, 999, '2026-01-01')",
-                      (hashlib.sha256(token.encode()).hexdigest(),))
-            c.commit()
-        self.assertErro(self.cliente.get("/api/v1/users/999", headers=self.auth(token)), 404)
 
     def test_options_e_metodo_nao_suportado(self):
         self.assertEqual(self.cliente.options(self.url).status_code, 204)

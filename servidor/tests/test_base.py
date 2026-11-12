@@ -121,13 +121,13 @@ class TestBanco(BaseComBanco):
             c.execute("INSERT INTO users (nome, email, senha_hash) VALUES ('Ana', 'a@x.com', 'h')")
             c.execute("DELETE FROM users")
             c.execute("INSERT INTO users (nome, email, senha_hash) VALUES ('Bia', 'b@x.com', 'h')")
-            self.assertEqual(c.execute("SELECT id FROM users").fetchone()[0], 2)
+            self.assertEqual(c.execute("SELECT id FROM users").fetchone()[0], 3)
 
     def test_excluir_usuario_remove_sessoes(self):
         with self.conexao() as c:
-            c.execute("INSERT INTO users (nome, email, senha_hash) VALUES ('Ana', 'a@x.com', 'h')")
-            c.execute("INSERT INTO sessions VALUES ('s1', 't1', 1, '2026-01-01')")
-            c.execute("DELETE FROM users WHERE id = 1")
+            id_ana = c.execute("INSERT INTO users (nome, email, senha_hash) VALUES ('Ana', 'a@x.com', 'h')").lastrowid
+            c.execute("INSERT INTO sessions VALUES ('s1', 't1', ?, '2026-01-01', '127.0.0.1')", (id_ana,))
+            c.execute("DELETE FROM users WHERE id = ?", (id_ana,))
             self.assertEqual(c.execute("SELECT COUNT(*) FROM sessions").fetchone()[0], 0)
 
     def test_inicializar_duas_vezes_nao_apaga_dados(self):
@@ -135,7 +135,7 @@ class TestBanco(BaseComBanco):
             c.execute("INSERT INTO users (nome, email, senha_hash) VALUES ('Ana', 'a@x.com', 'h')")
         criar_api(LogRequisicoes(), self.caminho_banco)
         with self.conexao() as c:
-            self.assertEqual(c.execute("SELECT COUNT(*) FROM users").fetchone()[0], 1)
+            self.assertEqual(c.execute("SELECT COUNT(*) FROM users").fetchone()[0], 2)
 
 
 class TestPorta(unittest.TestCase):

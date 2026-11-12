@@ -48,7 +48,8 @@ class TestSessoes(unittest.TestCase):
         uuid.UUID(dados["id"])
         self.assertIsInstance(dados["token"], str)
         self.assertNotEqual(dados["id"], dados["token"])
-        self.assertEqual(dados["usuario"], {"id": self.id_maria, "nome": "Maria Silva", "email": "maria@exemplo.com"})
+        self.assertEqual(dados["usuario"], {"id": self.id_maria, "nome": "Maria Silva", "email": "maria@exemplo.com", "admin": False})
+        self.assertEqual(r.headers["Location"], f"/api/v1/sessions/{dados['id']}")
         self.assertEqual(r.headers["Access-Control-Allow-Origin"], "*")
 
     def test_login_com_email_em_maiusculas(self):
@@ -117,10 +118,10 @@ class TestSessoes(unittest.TestCase):
         self.assertErro(self.logout(joao["id"], maria["token"]), 403)
         self.assertEqual(len(self.sessoes_no_banco()), 2)
 
-    def test_logout_de_sessao_inexistente_404(self):
+    def test_logout_de_sessao_inexistente_403(self):
         s = self.login("maria@exemplo.com", "Senha123").get_json()
-        self.assertErro(self.logout(str(uuid.uuid4()), s["token"]), 404)
-        self.assertErro(self.logout("qualquer-texto", s["token"]), 404)
+        self.assertErro(self.logout(str(uuid.uuid4()), s["token"]), 403)
+        self.assertErro(self.logout("qualquer-texto", s["token"]), 403)
 
     def test_logout_sem_token_ou_token_invalido_401(self):
         s = self.login("maria@exemplo.com", "Senha123").get_json()
@@ -130,7 +131,7 @@ class TestSessoes(unittest.TestCase):
             self.assertErro(self.cliente.delete(url, headers=cabecalhos), 401)
         self.assertEqual(len(self.sessoes_no_banco()), 1)
 
-    def test_401_vem_antes_de_404_e_403(self):
+    def test_401_vem_antes_de_403(self):
         self.assertErro(self.cliente.delete(f"/api/v1/sessions/{uuid.uuid4()}"), 401)
 
     def test_bearer_sem_diferenciar_maiusculas(self):

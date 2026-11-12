@@ -23,7 +23,7 @@ def criar_sessao():
     credenciais = validar_login(ler_objeto_json(request))
     conexao = obter_conexao()
     usuario = conexao.execute(
-        "SELECT id, nome, email, senha_hash FROM users WHERE email = ?", (credenciais["email"],)
+        "SELECT id, nome, email, senha_hash, admin FROM users WHERE email = ?", (credenciais["email"],)
     ).fetchone()
     senha_correta = check_password_hash(usuario["senha_hash"] if usuario else HASH_FICTICIO, credenciais["senha"])
     if usuario is None or not senha_correta:
@@ -34,17 +34,30 @@ def criar_sessao():
     try:
         with conexao:
             conexao.execute(
-                "INSERT INTO sessions (id, token_hash, usuario_id, criado_em) VALUES (?, ?, ?, ?)",
-                (id_sessao, calcular_hash_token(token), usuario["id"], datetime.now(timezone.utc).isoformat()),
+                "INSERT INTO sessions (id, token_hash, usuario_id, criado_em, ip) VALUES (?, ?, ?, ?, ?)",
+                (
+                    id_sessao,
+                    calcular_hash_token(token),
+                    usuario["id"],
+                    datetime.now(timezone.utc).isoformat(),
+                    request.remote_addr or "",
+                ),
             )
     except sqlite3.IntegrityError:
         return jsonify(mensagem=MENSAGEM_CREDENCIAIS_INVALIDAS), 401
 
-    return jsonify(
+    resposta = jsonify(
         id=id_sessao,
         token=token,
-        usuario={"id": usuario["id"], "nome": usuario["nome"], "email": usuario["email"]},
-    ), 201
+        usuario={
+            "id": usuario["id"],
+            "nome": usuario["nome"],
+            "email": usuario["email"],
+            "admin": bool(usuario["admin"]),
+        },
+    )
+    resposta.headers["Location"] = f"/api/v1/sessions/{id_sessao}"
+    return resposta, 201
 
 
 @rotas_sessoes.delete("/sessions/<id_sessao>")
@@ -52,10 +65,8 @@ def encerrar_sessao(id_sessao):
     usuario_id = usuario_autenticado()
     conexao = obter_conexao()
     sessao = conexao.execute("SELECT usuario_id FROM sessions WHERE id = ?", (id_sessao,)).fetchone()
-    if sessao is None:
-        return jsonify(mensagem="Sessão não encontrada."), 404
-    if sessao["usuario_id"] != usuario_id:
-        return jsonify(mensagem="Esta sessão pertence a outro usuário."), 403
+    if sessao is None or sessao["usuario_id"] != usuario_id:
+        return jsonify(mensagem="Esta sessão não pertence a você."), 403
     with conexao:
         conexao.execute("DELETE FROM sessions WHERE id = ?", (id_sessao,))
     return "", 204
