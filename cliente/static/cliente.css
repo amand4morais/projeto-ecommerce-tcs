@@ -263,3 +263,23 @@ input:focus-visible, .botao:focus-visible, .menu a:focus-visible, .abas button:f
   .linha-campos { grid-template-columns: 1fr; }
   .identidade { margin-left: 0; }
 }
+
+.grade-usuarios { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); gap: 24px; align-items: start; }
+.grade-usuarios > * { min-width: 0; }
+@media (max-width: 960px) { .grade-usuarios { grid-template-columns: 1fr; } }
+
+.tabela-rolagem { overflow: auto; max-height: 560px; border: 1px solid var(--borda); border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--borda); vertical-align: middle; }
+th { position: sticky; top: 0; background: var(--fundo-elevado); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--apagado); }
+tbody tr:hover { background: rgba(124, 58, 237, 0.08); }
+tr.linha-selecionada { background: rgba(124, 58, 237, 0.18); box-shadow: inset 3px 0 0 var(--roxo); }
+td.dados { font-family: var(--fonte-dados); }
+.tabela-rolagem td { white-space: nowrap; }
+td.destaque { font-weight: 600; }
+.celula-acoes { white-space: nowrap; text-align: right; }
+.celula-acoes .botao + .botao { margin-left: 6px; }
+.botao-pequeno { padding: 4px 10px; font-size: 0.8rem; }
+.etiqueta-comum { color: var(--lilas); border: 1px solid var(--lilas); }
+.aviso-forte { padding: 10px 12px; color: var(--coral); background: rgba(251, 113, 133, 0.1); border: 1px solid rgba(251, 113, 133, 0.45); border-radius: 8px; font-weight: 600; }
+.visualmente-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

@@ -86,6 +86,14 @@ class TestEnviar(unittest.TestCase):
         for trecho in ('id="form-editar"', 'id="dialogo-exclusao"', 'data-exige-sessao="sim"', "minha_conta.js"):
             self.assertIn(trecho, pagina)
 
+    def test_pagina_usuarios(self):
+        r = self.cliente.get("/usuarios")
+        self.assertEqual(r.status_code, 200)
+        pagina = r.get_data(as_text=True)
+        for trecho in ('data-exige-sessao="sim"', 'data-exige-admin="sim"', 'id="linhas-usuarios"', 'id="aviso-propria-conta"', "usuarios.js"):
+            self.assertIn(trecho, pagina)
+        self.assertIn('data-exige-admin="nao"', self.cliente.get("/conta").get_data(as_text=True))
+
     def test_repassa_metodo_caminho_corpo_e_token(self):
         r = self.enviar(metodo="PATCH", caminho="/users/7", corpo={"nome": "Ana"}, token="abc123")
         self.assertEqual(r.status_code, 200)

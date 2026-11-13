@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block titulo %}Usuários{% endblock %}
+{% block conteudo %}
+<div class="grade-usuarios">
+  <section class="cartao" aria-labelledby="titulo-lista">
+    <header class="cartao-topo">
+      <h1 id="titulo-lista">Usuários</h1>
+      <button id="botao-atualizar-lista" type="button" class="botao botao-secundario">Atualizar</button>
+    </header>
+    <div class="cartao-corpo">
+      <p id="dica-lista" class="apagado">Carregando usuários do servidor…</p>
+      <div class="tabela-rolagem" id="area-tabela" hidden>
+        <table>
+          <thead>
+            <tr><th>Id</th><th>Nome</th><th>E-mail</th><th>Papel</th><th><span class="visualmente-oculto">Ações</span></th></tr>
+          </thead>
+          <tbody id="linhas-usuarios"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="cartao" aria-labelledby="titulo-selecionado">
+    <header class="cartao-topo">
+      <h2 id="titulo-selecionado">Usuário selecionado</h2>
+      <span class="cartao-detalhe" id="id-selecionado"></span>
+    </header>
+    <div class="cartao-corpo">
+      <p id="detalhe-vazio" class="apagado">Selecione um usuário na lista para ver, editar ou excluir.</p>
+
+      <div id="detalhe-ver" hidden>
+        <dl id="dados-selecionado" class="lista-dados"></dl>
+        <div class="acoes">
+          <button id="botao-editar-selecionado" type="button" class="botao botao-principal">Editar</button>
+          <button id="botao-excluir-selecionado" type="button" class="botao botao-perigo">Excluir</button>
+        </div>
+      </div>
+
+      <form id="form-editar-usuario" class="formulario" novalidate hidden>
+        <label class="campo">Nome <input name="nome" type="text" autocomplete="off"></label>
+        <label class="campo">E-mail <input name="email" type="text" autocomplete="off" spellcheck="false"></label>
+        <label class="campo"><span>Nova senha <span class="opcional">(opcional)</span></span> <input name="senha" type="password" autocomplete="new-password"></label>
+        <div class="acoes">
+          <button type="submit" class="botao botao-principal">Salvar alterações</button>
+          <button id="botao-cancelar-edicao" type="button" class="botao botao-secundario">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<dialog id="dialogo-exclusao-usuario" class="dialogo" aria-labelledby="titulo-exclusao-usuario">
+  <h2 id="titulo-exclusao-usuario">Excluir usuário?</h2>
+  <p id="texto-exclusao-usuario"></p>
+  <p id="aviso-propria-conta" class="aviso-forte" hidden>Você está excluindo a sua própria conta de administrador. Sua sessão será encerrada.</p>
+  <div class="acoes acoes-dialogo">
+    <button id="botao-cancelar-exclusao-usuario" type="button" class="botao botao-secundario">Cancelar</button>
+    <button id="botao-confirmar-exclusao-usuario" type="button" class="botao botao-perigo-cheio">Excluir</button>
+  </div>
+</dialog>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='usuarios.js') }}"></script>{% endblock %}

@@ -207,6 +207,7 @@ function exibirIdentidade() {
   document.getElementById("texto-usuario").textContent = sessao?.usuario?.nome ?? sessao?.usuario?.email ?? "";
   document.getElementById("etiqueta-adm").hidden = sessao?.usuario?.admin !== true;
   document.getElementById("menu").hidden = !sessao;
+  document.getElementById("menu-usuarios").hidden = sessao?.usuario?.admin !== true;
   botaoSair.hidden = !sessao;
 }
 
@@ -232,6 +233,10 @@ function protegerPagina() {
   const exigeSessao = document.body.dataset.exigeSessao === "sim";
   if (exigeSessao && !obterSessao()) {
     irPara("/", "Entre na sua conta para acessar esta página.", "erro");
+    return false;
+  }
+  if (document.body.dataset.exigeAdmin === "sim" && obterSessao()?.usuario?.admin !== true) {
+    irPara("/conta", "Esta página é exclusiva para administradores.", "erro");
     return false;
   }
   if (!exigeSessao && obterSessao()) {
