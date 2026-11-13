@@ -3,6 +3,7 @@ from werkzeug.exceptions import HTTPException
 
 from autenticacao import ErroAutenticacao
 from banco import CAMINHO_BANCO_PADRAO, fechar_conexao, inicializar_banco
+from rotas_produtos import rotas_produtos
 from rotas_sessoes import rotas_sessoes
 from rotas_usuarios import ErroRequisicao, rotas_usuarios
 from validacao import ErroValidacao
@@ -31,6 +32,7 @@ def criar_api(log, caminho_banco=CAMINHO_BANCO_PADRAO):
     inicializar_banco(caminho_banco)
     app.register_blueprint(rotas_usuarios, url_prefix=PREFIXO)
     app.register_blueprint(rotas_sessoes, url_prefix=PREFIXO)
+    app.register_blueprint(rotas_produtos, url_prefix=PREFIXO)
     app.teardown_appcontext(fechar_conexao)
 
     @app.before_request

@@ -3,6 +3,7 @@ import re
 PADRAO_EMAIL = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
 PADRAO_SENHA = re.compile(r"[a-zA-Z0-9]+")
 PADRAO_ID = re.compile(r"[0-9]+")
+QUANTIDADE_MAXIMA = 1_000_000
 
 
 class ErroValidacao(Exception):
@@ -73,7 +74,62 @@ def validar_usuario_parcial(dados):
     return campos
 
 
-def validar_id_usuario(texto):
+def validar_id(texto, recurso):
     if not PADRAO_ID.fullmatch(texto):
-        raise ErroValidacao("O id do usuário deve ser um número inteiro.")
+        raise ErroValidacao(f"O id do {recurso} deve ser um número inteiro.")
     return int(texto)
+
+
+def validar_id_usuario(texto):
+    return validar_id(texto, "usuário")
+
+
+def validar_id_produto(texto):
+    return validar_id(texto, "produto")
+
+
+def validar_nome_produto(valor):
+    nome = valor.strip()
+    if not 2 <= len(nome) <= 100:
+        raise ErroValidacao("O nome do produto deve ter entre 2 e 100 caracteres.")
+    return nome
+
+
+def validar_descricao(valor):
+    descricao = valor.strip()
+    if len(descricao) > 500:
+        raise ErroValidacao("A descrição deve ter no máximo 500 caracteres.")
+    return descricao
+
+
+def obter_quantidade(dados):
+    if "quantidade" not in dados:
+        raise ErroValidacao("O campo quantidade é obrigatório.")
+    valor = dados["quantidade"]
+    # bool é subclasse de int em Python; true/false não são quantidades válidas.
+    if not isinstance(valor, int) or isinstance(valor, bool):
+        raise ErroValidacao("A quantidade deve ser um número inteiro.")
+    if not 0 <= valor <= QUANTIDADE_MAXIMA:
+        raise ErroValidacao("A quantidade deve estar entre 0 e 1.000.000.")
+    return valor
+
+
+def validar_produto_completo(dados):
+    return {
+        "nome": validar_nome_produto(obter_texto(dados, "nome")),
+        "descricao": validar_descricao(obter_texto(dados, "descricao")),
+        "quantidade": obter_quantidade(dados),
+    }
+
+
+def validar_produto_parcial(dados):
+    campos = {}
+    if "nome" in dados:
+        campos["nome"] = validar_nome_produto(obter_texto(dados, "nome"))
+    if "descricao" in dados:
+        campos["descricao"] = validar_descricao(obter_texto(dados, "descricao"))
+    if "quantidade" in dados:
+        campos["quantidade"] = obter_quantidade(dados)
+    if not campos:
+        raise ErroValidacao("Envie ao menos um dos campos: nome, descricao ou quantidade.")
+    return campos

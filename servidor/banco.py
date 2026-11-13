@@ -25,6 +25,13 @@ CREATE TABLE IF NOT EXISTS sessions (
     criado_em   TEXT NOT NULL,
     ip          TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS products (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome        TEXT NOT NULL,
+    descricao   TEXT NOT NULL,
+    quantidade  INTEGER NOT NULL
+);
 """
 
 
