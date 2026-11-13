@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{% endblock %} · Servidor de reservas</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='painel.css') }}">
+</head>
+<body>
+  <header class="letreiro">
+    <div class="letreiro-conteudo">
+      <div class="marca">
+        <span class="marca-estrela" aria-hidden="true">★</span>
+        <div>
+          <p class="marca-titulo">Servidor de reservas</p>
+          <p class="marca-subtitulo">Bilheteria · API REST /api/v1</p>
+        </div>
+      </div>
+      <nav class="menu" aria-label="Páginas do painel">
+        <a href="{{ url_for('pagina') }}" {% if pagina == 'visao-geral' %}aria-current="page"{% endif %}>Visão geral</a>
+        <a href="{{ url_for('pagina_comunicacao') }}" {% if pagina == 'comunicacao' %}aria-current="page"{% endif %}>Comunicação</a>
+      </nav>
+      <p class="selo-api" id="selo-api" data-rodando="false" role="status" aria-live="polite">
+        <span class="selo-luz" aria-hidden="true"></span><span id="selo-texto">API parada</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="conteudo">
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', filename='base.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

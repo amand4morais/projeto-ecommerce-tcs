@@ -46,7 +46,15 @@ def criar_api(log, caminho_banco=CAMINHO_BANCO_PADRAO):
         if resposta.status_code == 204:
             resposta.headers.pop("Content-Type", None)
         resposta.headers.update(CABECALHOS_CORS)
-        log.registrar(request.remote_addr, request.method, request.path, resposta.status_code)
+        log.registrar(
+            request.remote_addr,
+            request.method,
+            request.path,
+            resposta.status_code,
+            autorizacao=request.headers.get("Authorization"),
+            corpo_recebido=request.get_data(as_text=True),
+            corpo_resposta=None if resposta.direct_passthrough else resposta.get_data(as_text=True),
+        )
         return resposta
 
     @app.errorhandler(ErroValidacao)

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titulo %}Comunicação{% endblock %}
+{% block conteudo %}
+<section class="ingresso" aria-labelledby="titulo-comunicacao">
+  <header class="ingresso-topo">
+    <h1 id="titulo-comunicacao">Comunicação</h1>
+    <div class="barra-ferramentas">
+      <div class="alternador" role="group" aria-label="Forma de exibição">
+        <button type="button" id="ver-detalhado" aria-pressed="true">Detalhado</button>
+        <button type="button" id="ver-resumo" aria-pressed="false">Resumo</button>
+      </div>
+      <button type="button" id="botao-limpar" class="botao botao-secundario">Limpar</button>
+    </div>
+  </header>
+  <div class="ingresso-corpo">
+    <ol id="lista-detalhada" class="lista-comunicacao" aria-live="polite">
+      <li class="vazio">Nenhuma requisição ainda. Inicie a API e aguarde os clientes.</li>
+    </ol>
+
+    <div id="painel-resumo" class="tabela-rolagem" hidden>
+      <table>
+        <thead>
+          <tr><th>Hora</th><th>Origem</th><th>Método</th><th>Caminho</th><th>Status</th></tr>
+        </thead>
+        <tbody id="linhas-log">
+          <tr class="vazio"><td colspan="5">Nenhuma requisição ainda. Inicie a API e aguarde os clientes.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='comunicacao.js') }}"></script>{% endblock %}

@@ -1,49 +1,53 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Painel do servidor — E-commerce</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='painel.css') }}">
-</head>
-<body>
-  <main class="painel">
-    <header class="cabecalho">
-      <h1>Servidor de reservas</h1>
-      <p class="subtitulo">API REST /api/v1, seguindo o protocolo da turma</p>
+{% extends "base.html" %}
+{% block titulo %}Visão geral{% endblock %}
+{% block conteudo %}
+<div class="grade-topo">
+  <section class="ingresso" aria-labelledby="titulo-controle">
+    <header class="ingresso-topo">
+      <h1 id="titulo-controle">Controle da API</h1>
+      <span class="ingresso-numero">Nº 01</span>
     </header>
-
-    <section class="controle" aria-labelledby="titulo-controle">
-      <h2 id="titulo-controle" class="visualmente-oculto">Controle da API</h2>
-
-      <div class="estado" id="estado" data-rodando="false">
-        <span class="lampada" aria-hidden="true"></span>
-        <span id="texto-estado">API parada</span>
-      </div>
-
+    <div class="ingresso-corpo">
       <label for="porta">Porta da API</label>
       <div class="linha-porta">
         <input id="porta" type="text" inputmode="numeric" maxlength="5" placeholder="ex.: 8080" autocomplete="off">
-        <button id="botao-iniciar" type="button" class="botao botao-iniciar">Iniciar API</button>
-        <button id="botao-parar" type="button" class="botao botao-parar" disabled>Parar API</button>
+        <button id="botao-iniciar" type="button" class="botao botao-principal">Iniciar API</button>
+        <button id="botao-parar" type="button" class="botao botao-perigo" disabled>Parar API</button>
       </div>
       <p class="aviso" id="mensagem" role="status" aria-live="polite"></p>
-    </section>
-
-    <section class="registro" aria-labelledby="titulo-log">
-      <h2 id="titulo-log">Requisições recebidas</h2>
-      <div class="tabela-rolagem">
-        <table>
-          <thead>
-            <tr><th>Hora</th><th>Origem</th><th>Método</th><th>Caminho</th><th>Status</th></tr>
-          </thead>
-          <tbody id="linhas-log">
-            <tr class="vazio"><td colspan="5">Nenhuma requisição ainda. Inicie a API e aguarde os clientes.</td></tr>
-          </tbody>
-        </table>
+      <div class="enderecos">
+        <p class="rotulo">Informe aos clientes</p>
+        <ul id="lista-enderecos" class="lista-enderecos"></ul>
       </div>
-    </section>
-  </main>
-  <script src="{{ url_for('static', filename='painel.js') }}"></script>
-</body>
-</html>
+    </div>
+  </section>
+
+  <section class="canhotos" aria-label="Indicadores">
+    <div class="canhoto"><span class="canhoto-valor" id="ind-usuarios">0</span><span class="canhoto-rotulo">Usuários logados</span></div>
+    <div class="canhoto"><span class="canhoto-valor" id="ind-sessoes">0</span><span class="canhoto-rotulo">Sessões ativas</span></div>
+    <div class="canhoto"><span class="canhoto-valor" id="ind-clientes">0</span><span class="canhoto-rotulo">Clientes ativos (5 min)</span></div>
+    <div class="canhoto"><span class="canhoto-valor" id="ind-requisicoes">0</span><span class="canhoto-rotulo">Requisições recebidas</span></div>
+  </section>
+</div>
+
+<section class="ingresso" aria-labelledby="titulo-logados">
+  <header class="ingresso-topo">
+    <h2 id="titulo-logados">Usuários logados</h2>
+    <span class="ingresso-numero">Atualizado a cada 2 s</span>
+  </header>
+  <div class="ingresso-corpo">
+    <p class="aviso erro" id="erro-logados" hidden></p>
+    <div class="tabela-rolagem">
+      <table>
+        <thead>
+          <tr><th>Nome</th><th>E-mail</th><th>Papel</th><th>Sessões</th><th>IP do último login</th><th>Último login</th></tr>
+        </thead>
+        <tbody id="linhas-logados">
+          <tr class="vazio"><td colspan="6">Nenhum usuário logado no momento.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='painel.js') }}"></script>{% endblock %}
