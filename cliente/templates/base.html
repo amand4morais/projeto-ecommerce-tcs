@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{% endblock %} · Bilheteria</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='cliente.css') }}">
+</head>
+<body data-pagina="{{ pagina }}" data-exige-sessao="{{ 'sim' if exige_sessao else 'nao' }}">
+  <header class="letreiro">
+    <div class="letreiro-conteudo">
+      <div class="marca">
+        <span class="marca-estrela" aria-hidden="true">★</span>
+        <div>
+          <p class="marca-titulo">Bilheteria</p>
+          <p class="marca-subtitulo">Cliente de reservas</p>
+        </div>
+      </div>
+      <nav class="menu" id="menu" aria-label="Páginas" hidden>
+        <a href="{{ url_for('pagina_conta') }}" {% if pagina == 'conta' %}aria-current="page"{% endif %}>Minha conta</a>
+      </nav>
+      <div class="identidade">
+        <p class="selo" id="selo-conexao" hidden><span class="selo-luz" aria-hidden="true"></span><span id="texto-conexao"></span></p>
+        <p class="selo selo-usuario" id="selo-usuario" hidden><span id="texto-usuario"></span><span class="etiqueta etiqueta-adm" id="etiqueta-adm" hidden>ADM</span></p>
+        <button type="button" id="botao-sair" class="botao botao-secundario" hidden>Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="conteudo">
+    <p id="mensagem" class="mensagem" role="status" aria-live="polite"></p>
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <button type="button" id="botao-comunicacao" class="botao-flutuante" aria-controls="gaveta" aria-expanded="false">
+    Comunicação <span class="contador" id="contador-comunicacao">0</span>
+  </button>
+  <aside id="gaveta" class="gaveta" aria-labelledby="titulo-gaveta" hidden>
+    <header class="gaveta-topo">
+      <h2 id="titulo-gaveta">Comunicação</h2>
+      <div class="gaveta-acoes">
+        <button type="button" id="botao-limpar" class="botao botao-secundario">Limpar</button>
+        <button type="button" id="botao-fechar-gaveta" class="botao botao-secundario" aria-label="Fechar painel de comunicação">✕</button>
+      </div>
+    </header>
+    <ol id="lista-comunicacao" class="lista-comunicacao" aria-live="polite"></ol>
+  </aside>
+
+  <script src="{{ url_for('static', filename='cliente.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

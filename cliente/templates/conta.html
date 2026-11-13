@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block titulo %}Minha conta{% endblock %}
+{% block conteudo %}
+<div class="grade-conta">
+  <section class="cartao" aria-labelledby="titulo-dados">
+    <header class="cartao-topo">
+      <h1 id="titulo-dados">Meus dados</h1>
+      <button id="botao-consultar" type="button" class="botao botao-secundario">Atualizar</button>
+    </header>
+    <div class="cartao-corpo">
+      <p id="dica-dados" class="apagado">Carregando seus dados do servidor…</p>
+      <dl id="lista-dados" class="lista-dados"></dl>
+    </div>
+  </section>
+
+  <section class="cartao" aria-labelledby="titulo-editar">
+    <header class="cartao-topo">
+      <h2 id="titulo-editar">Editar dados</h2>
+    </header>
+    <div class="cartao-corpo">
+      <form id="form-editar" class="formulario" novalidate>
+        <label class="campo">Nome <input name="nome" type="text" autocomplete="name"></label>
+        <label class="campo">E-mail <input name="email" type="text" autocomplete="email" spellcheck="false"></label>
+        <label class="campo"><span>Nova senha <span class="opcional">(opcional)</span></span> <input name="senha" type="password" autocomplete="new-password"></label>
+        <button type="submit" class="botao botao-principal">Salvar alterações</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<section class="cartao cartao-perigo" aria-labelledby="titulo-excluir">
+  <header class="cartao-topo">
+    <h2 id="titulo-excluir">Excluir conta</h2>
+  </header>
+  <div class="cartao-corpo linha-perigo">
+    <p class="apagado">Remove seu cadastro deste servidor e encerra todas as suas sessões.</p>
+    <button id="botao-excluir" type="button" class="botao botao-perigo">Excluir conta</button>
+  </div>
+</section>
+
+<dialog id="dialogo-exclusao" class="dialogo" aria-labelledby="titulo-exclusao">
+  <h2 id="titulo-exclusao">Excluir conta?</h2>
+  <p>Tem certeza? Esta ação não pode ser desfeita.</p>
+  <div class="acoes acoes-dialogo">
+    <button id="botao-cancelar-exclusao" type="button" class="botao botao-secundario">Cancelar</button>
+    <button id="botao-confirmar-exclusao" type="button" class="botao botao-perigo-cheio">Excluir</button>
+  </div>
+</dialog>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='minha_conta.js') }}"></script>{% endblock %}

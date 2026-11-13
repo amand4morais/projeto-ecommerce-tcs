@@ -1,20 +1,14 @@
+const campoHost = document.getElementById("host");
+const campoPorta = document.getElementById("porta");
+const botaoConectar = document.getElementById("botao-conectar");
+const botaoDesconectar = document.getElementById("botao-desconectar");
+const estadoConexao = document.getElementById("estado-conexao");
+const avisoConexao = document.getElementById("aviso-conexao");
 const telaVisitante = document.getElementById("tela-visitante");
-const telaLogado = document.getElementById("tela-logado");
 const abaEntrar = document.getElementById("aba-entrar");
 const abaCadastro = document.getElementById("aba-cadastro");
 const formEntrar = document.getElementById("form-entrar");
 const formCadastro = document.getElementById("form-cadastro");
-const botaoSair = document.getElementById("botao-sair");
-const mensagemConta = document.getElementById("mensagem-conta");
-const avisoConexao = document.getElementById("aviso-conexao");
-const botaoConectar = document.getElementById("botao-conectar");
-const botaoDesconectar = document.getElementById("botao-desconectar");
-const estadoConexao = document.getElementById("estado-conexao");
-
-function mostrarMensagem(texto, tipo = "") {
-  mensagemConta.textContent = texto;
-  mensagemConta.dataset.tipo = tipo;
-}
 
 function selecionarAba(aba) {
   const entrar = aba === "entrar";
@@ -24,57 +18,33 @@ function selecionarAba(aba) {
   formCadastro.hidden = entrar;
 }
 
-function exibirTela() {
-  const sessao = obterSessao();
-  if (sessao && !obterConexao()) salvarConexao({ host: sessao.host, porta: sessao.porta });
+function exibirConexao() {
   const conexao = obterConexao();
   const conectado = Boolean(conexao);
-  const logado = Boolean(sessao);
-
   campoHost.disabled = conectado;
   campoPorta.disabled = conectado;
   botaoConectar.hidden = conectado;
   botaoDesconectar.hidden = !conectado;
-  botaoDesconectar.disabled = logado;
-  botaoDesconectar.title = logado ? "Saia da conta antes de desconectar." : "";
-  estadoConexao.textContent = conectado ? `Conectado a ${conexao.host}:${conexao.porta}` : "";
-
+  estadoConexao.textContent = conectado ? "Conectado" : "Desconectado";
+  estadoConexao.dataset.conectado = String(conectado);
   avisoConexao.hidden = conectado;
-  telaVisitante.hidden = !conectado || logado;
-  telaLogado.hidden = !logado;
-
+  telaVisitante.hidden = !conectado;
   if (conectado) {
     campoHost.value = conexao.host;
     campoPorta.value = conexao.porta;
   }
-  if (logado) {
-    document.getElementById("nome-logado").textContent = sessao.usuario?.nome ?? "";
-    document.getElementById("email-logado").textContent = sessao.usuario?.email ? `(${sessao.usuario.email})` : "";
-  }
-}
-
-async function comBotaoOcupado(botao, acao) {
-  botao.disabled = true;
-  try {
-    await acao();
-  } finally {
-    botao.disabled = false;
-  }
-}
-
-function lerCampos(formulario, nomes) {
-  const dados = new FormData(formulario);
-  return Object.fromEntries(nomes.map((nome) => [nome, dados.get(nome)]));
+  exibirIdentidade();
 }
 
 async function conectar() {
-  const resposta = await enviarRequisicao("OPTIONS", "/users");
+  const destino = { host: campoHost.value.trim(), porta: campoPorta.value.trim() };
+  const resposta = await enviarRequisicao("OPTIONS", "/users", undefined, false, destino);
   if (resposta.status === null) {
     mostrarMensagem(resposta.mensagem, "erro");
     return;
   }
-  salvarConexao({ host: campoHost.value.trim(), porta: campoPorta.value.trim() });
-  exibirTela();
+  salvarConexao(destino);
+  exibirConexao();
   if (resposta.ok) {
     mostrarMensagem("Servidor encontrado. Agora você pode entrar ou criar uma conta.", "sucesso");
   } else {
@@ -84,7 +54,7 @@ async function conectar() {
 
 function desconectar() {
   limparConexao();
-  exibirTela();
+  exibirConexao();
   mostrarMensagem("");
 }
 
@@ -115,48 +85,25 @@ async function entrar(evento) {
     mostrarMensagem("O servidor respondeu ao login sem o id da sessão ou o token.", "erro");
     return;
   }
+  const usuario = dados.usuario && typeof dados.usuario === "object" ? dados.usuario : { email: corpo.email };
   salvarSessao({
     id: String(dados.id),
     token: dados.token,
-    usuario: dados.usuario ?? { email: corpo.email },
+    usuario: { ...usuario, admin: usuario.admin === true },
     host: obterConexao().host,
     porta: obterConexao().porta,
   });
-  formEntrar.reset();
-  mostrarMensagem("");
-  exibirTela();
-  document.dispatchEvent(new CustomEvent("sessao-iniciada"));
-}
-
-async function sair() {
-  const sessao = obterSessao();
-  if (!sessao) {
-    exibirTela();
-    return;
-  }
-  const resposta = await enviarRequisicao("DELETE", `/sessions/${encodeURIComponent(sessao.id)}`, undefined, true);
-  if (resposta.ok) {
-    limparSessao();
-    exibirTela();
-    mostrarMensagem("Você saiu da conta.", "sucesso");
-  } else if (resposta.status !== 401) {
-    mostrarMensagem(resposta.mensagem, "erro");
-  }
+  irPara("/conta", `Bem-vindo(a), ${usuario.nome ?? corpo.email}!`);
 }
 
 abaEntrar.addEventListener("click", () => { selecionarAba("entrar"); mostrarMensagem(""); });
 abaCadastro.addEventListener("click", () => { selecionarAba("cadastro"); mostrarMensagem(""); });
 formCadastro.addEventListener("submit", (e) => comBotaoOcupado(e.submitter ?? formCadastro.querySelector("button"), () => criarConta(e)));
 formEntrar.addEventListener("submit", (e) => comBotaoOcupado(e.submitter ?? formEntrar.querySelector("button"), () => entrar(e)));
-botaoSair.addEventListener("click", () => comBotaoOcupado(botaoSair, sair));
 botaoConectar.addEventListener("click", () => comBotaoOcupado(botaoConectar, conectar));
 botaoDesconectar.addEventListener("click", desconectar);
 for (const campo of [campoHost, campoPorta]) {
   campo.addEventListener("keydown", (e) => { if (e.key === "Enter" && !botaoConectar.disabled) botaoConectar.click(); });
 }
-document.addEventListener("sessao-encerrada", () => {
-  exibirTela();
-  mostrarMensagem("Sua sessão não é mais válida neste servidor. Entre novamente.", "erro");
-});
 
-exibirTela();
+if (paginaLiberada) exibirConexao();

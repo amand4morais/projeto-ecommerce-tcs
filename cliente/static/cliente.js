@@ -1,5 +1,8 @@
 const CHAVE_SESSAO = "sessao";
 const CHAVE_CONEXAO = "conexao";
+const CHAVE_COMUNICACAO = "comunicacao";
+const CHAVE_AVISO = "aviso";
+const LIMITE_COMUNICACAO = 100;
 const MENSAGENS_PADRAO = {
   400: "Requisição inválida.",
   401: "Sessão inválida ou expirada. Faça login novamente.",
@@ -10,40 +13,55 @@ const MENSAGENS_PADRAO = {
   500: "Erro interno do servidor.",
 };
 
-const campoHost = document.getElementById("host");
-const campoPorta = document.getElementById("porta");
+const elementoMensagem = document.getElementById("mensagem");
 const listaComunicacao = document.getElementById("lista-comunicacao");
+const gaveta = document.getElementById("gaveta");
+const botaoComunicacao = document.getElementById("botao-comunicacao");
+const botaoSair = document.getElementById("botao-sair");
 
-function obterSessao() {
+function lerArmazenado(chave) {
   try {
-    return JSON.parse(sessionStorage.getItem(CHAVE_SESSAO));
+    return JSON.parse(sessionStorage.getItem(chave));
   } catch {
     return null;
   }
 }
 
-function salvarSessao(sessao) {
-  sessionStorage.setItem(CHAVE_SESSAO, JSON.stringify(sessao));
-}
-
-function limparSessao() {
-  sessionStorage.removeItem(CHAVE_SESSAO);
-}
-
-function obterConexao() {
+function salvarArmazenado(chave, valor) {
   try {
-    return JSON.parse(sessionStorage.getItem(CHAVE_CONEXAO));
+    sessionStorage.setItem(chave, JSON.stringify(valor));
   } catch {
-    return null;
+    // Armazenamento indisponível: a página continua funcionando, só não lembra entre recarregamentos.
   }
 }
 
-function salvarConexao(conexao) {
-  sessionStorage.setItem(CHAVE_CONEXAO, JSON.stringify(conexao));
+function removerArmazenado(chave) {
+  try {
+    sessionStorage.removeItem(chave);
+  } catch {
+    // Armazenamento indisponível: nada a remover.
+  }
 }
 
-function limparConexao() {
-  sessionStorage.removeItem(CHAVE_CONEXAO);
+const obterSessao = () => lerArmazenado(CHAVE_SESSAO);
+const salvarSessao = (sessao) => salvarArmazenado(CHAVE_SESSAO, sessao);
+const limparSessao = () => removerArmazenado(CHAVE_SESSAO);
+const obterConexao = () => lerArmazenado(CHAVE_CONEXAO);
+const salvarConexao = (conexao) => salvarArmazenado(CHAVE_CONEXAO, conexao);
+const limparConexao = () => removerArmazenado(CHAVE_CONEXAO);
+
+function definirAviso(texto, tipo) {
+  salvarArmazenado(CHAVE_AVISO, { texto, tipo });
+}
+
+function irPara(caminho, aviso, tipo = "sucesso") {
+  if (aviso) definirAviso(aviso, tipo);
+  window.location.href = caminho;
+}
+
+function mostrarMensagem(texto, tipo = "") {
+  elementoMensagem.textContent = texto;
+  elementoMensagem.dataset.tipo = tipo;
 }
 
 function mensagemDaResposta(status, corpo) {
@@ -58,7 +76,7 @@ function mascararToken(token) {
 function criarElemento(tag, classe, texto) {
   const elemento = document.createElement(tag);
   if (classe) elemento.className = classe;
-  if (texto !== undefined) elemento.textContent = texto;
+  if (texto !== undefined && texto !== null) elemento.textContent = texto;
   return elemento;
 }
 
@@ -68,45 +86,89 @@ function formatarCorpo(corpo) {
   return JSON.stringify(exibido, null, 2);
 }
 
-function registrarEnvio(metodo, url, corpo, token) {
-  const vazio = listaComunicacao.querySelector(".vazio");
-  if (vazio) vazio.remove();
+async function comBotaoOcupado(botao, acao) {
+  botao.disabled = true;
+  try {
+    await acao();
+  } finally {
+    botao.disabled = false;
+  }
+}
 
+function lerCampos(formulario, nomes) {
+  const dados = new FormData(formulario);
+  return Object.fromEntries(nomes.map((nome) => [nome, dados.get(nome)]));
+}
+
+function lerHistorico() {
+  const historico = lerArmazenado(CHAVE_COMUNICACAO);
+  return Array.isArray(historico) ? historico : [];
+}
+
+function salvarHistorico(historico) {
+  salvarArmazenado(CHAVE_COMUNICACAO, historico.slice(-LIMITE_COMUNICACAO));
+}
+
+function entradaDaComunicacao(item) {
   const entrada = criarElemento("li", "entrada");
-  const titulo = criarElemento("div", "linha-titulo");
+  const titulo = criarElemento("div", "entrada-titulo");
   titulo.append(
-    criarElemento("span", "hora", new Date().toLocaleTimeString("pt-BR")),
-    criarElemento("span", "seta-envio", `→ ${metodo}`),
-    criarElemento("span", null, url),
+    criarElemento("span", "hora", item.hora),
+    criarElemento("span", `metodo metodo-${item.metodo.toLowerCase()}`, item.metodo),
+    criarElemento("span", "caminho", item.url),
   );
   entrada.append(titulo);
+  entrada.append(criarElemento("p", "rotulo", "Enviado"), criarElemento("pre", "corpo", item.envio || "(sem corpo)"));
 
-  const detalhes = [];
-  if (token) detalhes.push(`Authorization: Bearer ${mascararToken(token)}`);
-  if (corpo !== undefined) detalhes.push(formatarCorpo(corpo));
-  if (detalhes.length) entrada.append(criarElemento("pre", "corpo", detalhes.join("\n\n")));
-
-  const aguardando = criarElemento("p", "aguardando", "Aguardando resposta…");
-  entrada.append(aguardando);
-  listaComunicacao.prepend(entrada);
-  return aguardando;
+  if (item.pendente) {
+    entrada.append(criarElemento("p", "aguardando", "Aguardando resposta…"));
+    return entrada;
+  }
+  const sucesso = item.status !== null && item.status >= 200 && item.status < 300;
+  const rotulo = criarElemento("p", "rotulo");
+  rotulo.append("Recebido ", criarElemento("span", `status ${sucesso ? "status-ok" : item.status === null ? "status-falha" : "status-erro"}`, item.status === null ? "✕ Falha" : item.status));
+  entrada.append(rotulo, criarElemento("pre", "corpo", item.resposta || "(sem corpo)"));
+  return entrada;
 }
 
-function registrarResposta(marcador, status, conteudo) {
-  const bloco = document.createElement("div");
-  const sucesso = status !== null && status >= 200 && status < 300;
-  const titulo = criarElemento("div", "linha-titulo");
-  titulo.append(criarElemento("span", `seta-resposta ${sucesso ? "sucesso" : "falha"}`, status === null ? "✕ Falha" : `← ${status}`));
-  bloco.append(titulo);
-  if (conteudo !== null && conteudo !== "") bloco.append(criarElemento("pre", "corpo", formatarCorpo(conteudo)));
-  marcador.replaceWith(bloco);
+function exibirComunicacao() {
+  const historico = lerHistorico();
+  document.getElementById("contador-comunicacao").textContent = historico.length;
+  if (historico.length === 0) {
+    listaComunicacao.replaceChildren(criarElemento("li", "vazio", "Nenhuma requisição enviada ainda."));
+    return;
+  }
+  listaComunicacao.replaceChildren(...historico.slice().reverse().map(entradaDaComunicacao));
 }
 
-async function enviarRequisicao(metodo, caminho, corpo, usarToken = false) {
-  const host = campoHost.value.trim();
-  const porta = campoPorta.value.trim();
+function registrarEnvio(metodo, url, corpo, token) {
+  const envio = [token ? `Authorization: Bearer ${mascararToken(token)}` : null, corpo !== undefined ? formatarCorpo(corpo) : null]
+    .filter(Boolean)
+    .join("\n\n");
+  const item = { id: `${Date.now()}-${Math.random()}`, hora: new Date().toLocaleTimeString("pt-BR"), metodo, url, envio, pendente: true };
+  const historico = lerHistorico();
+  historico.push(item);
+  salvarHistorico(historico);
+  exibirComunicacao();
+  return item.id;
+}
+
+function registrarResposta(id, status, conteudo) {
+  const historico = lerHistorico();
+  const item = historico.find((registro) => registro.id === id);
+  if (!item) return;
+  item.pendente = false;
+  item.status = status;
+  item.resposta = conteudo === null || conteudo === undefined || conteudo === "" ? "" : formatarCorpo(conteudo);
+  salvarHistorico(historico);
+  exibirComunicacao();
+}
+
+async function enviarRequisicao(metodo, caminho, corpo, usarToken = false, destino = obterConexao()) {
+  const host = destino?.host ?? "";
+  const porta = destino?.porta ?? "";
   const token = usarToken ? obterSessao()?.token : undefined;
-  const marcador = registrarEnvio(metodo, `http://${host}:${porta}/api/v1${caminho}`, corpo, token);
+  const id = registrarEnvio(metodo, `http://${host}:${porta}/api/v1${caminho}`, corpo, token);
 
   let dados;
   let respostaLocalOk = false;
@@ -123,19 +185,79 @@ async function enviarRequisicao(metodo, caminho, corpo, usarToken = false) {
   }
 
   if (!respostaLocalOk) {
-    registrarResposta(marcador, null, dados.mensagem);
+    registrarResposta(id, null, dados.mensagem);
     return { ok: false, status: null, corpo: null, mensagem: dados.mensagem };
   }
 
-  registrarResposta(marcador, dados.status, dados.corpo ?? dados.texto);
+  registrarResposta(id, dados.status, dados.corpo ?? dados.texto);
   const ok = dados.status >= 200 && dados.status < 300;
   if (dados.status === 401 && token) {
     limparSessao();
-    document.dispatchEvent(new CustomEvent("sessao-encerrada"));
+    irPara("/", "Sua sessão não é mais válida neste servidor. Entre novamente.", "erro");
   }
   return { ok, status: dados.status, corpo: dados.corpo, mensagem: ok ? null : mensagemDaResposta(dados.status, dados.corpo) };
 }
 
+function exibirIdentidade() {
+  const sessao = obterSessao();
+  const conexao = obterConexao();
+  document.getElementById("selo-conexao").hidden = !conexao;
+  document.getElementById("texto-conexao").textContent = conexao ? `${conexao.host}:${conexao.porta}` : "";
+  document.getElementById("selo-usuario").hidden = !sessao;
+  document.getElementById("texto-usuario").textContent = sessao?.usuario?.nome ?? sessao?.usuario?.email ?? "";
+  document.getElementById("etiqueta-adm").hidden = sessao?.usuario?.admin !== true;
+  document.getElementById("menu").hidden = !sessao;
+  botaoSair.hidden = !sessao;
+}
+
+function abrirGaveta(abrir) {
+  gaveta.hidden = !abrir;
+  botaoComunicacao.setAttribute("aria-expanded", String(abrir));
+  if (abrir) gaveta.focus();
+}
+
+async function sair() {
+  const sessao = obterSessao();
+  if (!sessao) return irPara("/");
+  const resposta = await enviarRequisicao("DELETE", `/sessions/${encodeURIComponent(sessao.id)}`, undefined, true);
+  if (resposta.ok) {
+    limparSessao();
+    irPara("/", "Você saiu da conta.");
+  } else if (resposta.status !== 401) {
+    mostrarMensagem(resposta.mensagem, "erro");
+  }
+}
+
+function protegerPagina() {
+  const exigeSessao = document.body.dataset.exigeSessao === "sim";
+  if (exigeSessao && !obterSessao()) {
+    irPara("/", "Entre na sua conta para acessar esta página.", "erro");
+    return false;
+  }
+  if (!exigeSessao && obterSessao()) {
+    irPara("/conta");
+    return false;
+  }
+  return true;
+}
+
+function exibirAvisoPendente() {
+  const aviso = lerArmazenado(CHAVE_AVISO);
+  removerArmazenado(CHAVE_AVISO);
+  if (aviso?.texto) mostrarMensagem(aviso.texto, aviso.tipo);
+}
+
+gaveta.tabIndex = -1;
+botaoComunicacao.addEventListener("click", () => abrirGaveta(gaveta.hidden));
+document.getElementById("botao-fechar-gaveta").addEventListener("click", () => abrirGaveta(false));
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !gaveta.hidden) abrirGaveta(false); });
 document.getElementById("botao-limpar").addEventListener("click", () => {
-  listaComunicacao.replaceChildren(criarElemento("li", "vazio", "Nenhuma requisição enviada ainda."));
+  salvarHistorico([]);
+  exibirComunicacao();
 });
+botaoSair.addEventListener("click", () => comBotaoOcupado(botaoSair, sair));
+
+const paginaLiberada = protegerPagina();
+exibirIdentidade();
+exibirComunicacao();
+if (paginaLiberada) exibirAvisoPendente();

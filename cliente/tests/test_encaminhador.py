@@ -72,11 +72,19 @@ class TestEnviar(unittest.TestCase):
         base = {"host": "127.0.0.1", "porta": str(self.porta), "metodo": "GET", "caminho": "/users/1"}
         return self.cliente.post("/enviar", json={**base, **dados})
 
-    def test_pagina(self):
+    def test_pagina_de_acesso(self):
         r = self.cliente.get("/")
         self.assertEqual(r.status_code, 200)
-        self.assertIn('id="host"', r.get_data(as_text=True))
-        self.assertIn('id="porta"', r.get_data(as_text=True))
+        pagina = r.get_data(as_text=True)
+        for trecho in ('id="host"', 'id="porta"', 'id="form-entrar"', 'id="form-cadastro"', 'data-exige-sessao="nao"', 'id="gaveta"'):
+            self.assertIn(trecho, pagina)
+
+    def test_pagina_minha_conta(self):
+        r = self.cliente.get("/conta")
+        self.assertEqual(r.status_code, 200)
+        pagina = r.get_data(as_text=True)
+        for trecho in ('id="form-editar"', 'id="dialogo-exclusao"', 'data-exige-sessao="sim"', "minha_conta.js"):
+            self.assertIn(trecho, pagina)
 
     def test_repassa_metodo_caminho_corpo_e_token(self):
         r = self.enviar(metodo="PATCH", caminho="/users/7", corpo={"nome": "Ana"}, token="abc123")

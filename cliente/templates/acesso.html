@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block titulo %}Acesso{% endblock %}
+{% block conteudo %}
+<div class="grade-acesso">
+  <section class="cartao" aria-labelledby="titulo-conexao">
+    <header class="cartao-topo">
+      <h1 id="titulo-conexao">Conexão</h1>
+      <span class="cartao-detalhe" id="estado-conexao">Desconectado</span>
+    </header>
+    <div class="cartao-corpo">
+      <div class="linha-campos">
+        <label class="campo">IP do servidor
+          <input id="host" type="text" placeholder="ex.: 192.168.0.10" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="campo campo-porta">Porta
+          <input id="porta" type="text" inputmode="numeric" maxlength="5" placeholder="ex.: 8080" autocomplete="off">
+        </label>
+      </div>
+      <div class="acoes">
+        <button id="botao-conectar" type="button" class="botao botao-principal">Conectar</button>
+        <button id="botao-desconectar" type="button" class="botao botao-secundario" hidden>Desconectar</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="cartao ingresso" aria-labelledby="titulo-acesso">
+    <header class="cartao-topo">
+      <h2 id="titulo-acesso">Acesso</h2>
+    </header>
+    <div class="cartao-corpo">
+      <p id="aviso-conexao" class="apagado">Conecte-se a um servidor para entrar ou criar uma conta.</p>
+      <div id="tela-visitante" hidden>
+        <div class="abas" role="tablist">
+          <button id="aba-entrar" type="button" role="tab" aria-selected="true" aria-controls="form-entrar">Entrar</button>
+          <button id="aba-cadastro" type="button" role="tab" aria-selected="false" aria-controls="form-cadastro">Criar conta</button>
+        </div>
+        <form id="form-entrar" class="formulario" role="tabpanel" aria-labelledby="aba-entrar" novalidate>
+          <label class="campo">E-mail <input name="email" type="text" autocomplete="username" spellcheck="false"></label>
+          <label class="campo">Senha <input name="senha" type="password" autocomplete="current-password"></label>
+          <button type="submit" class="botao botao-principal">Entrar</button>
+        </form>
+        <form id="form-cadastro" class="formulario" role="tabpanel" aria-labelledby="aba-cadastro" novalidate hidden>
+          <label class="campo">Nome <input name="nome" type="text" autocomplete="name"></label>
+          <label class="campo">E-mail <input name="email" type="text" autocomplete="email" spellcheck="false"></label>
+          <label class="campo">Senha <input name="senha" type="password" autocomplete="new-password"></label>
+          <button type="submit" class="botao botao-principal">Criar conta</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='acesso.js') }}"></script>{% endblock %}

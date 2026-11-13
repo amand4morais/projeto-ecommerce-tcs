@@ -14,21 +14,21 @@ function caminhoDoUsuario() {
 }
 
 function semIdDoUsuario() {
-  mostrarMensagem("O servidor não informou o id do usuário no login, então não é possível acessar o cadastro.", "erro");
+  dicaDados.textContent = "O servidor não informou o id do usuário no login, então não é possível acessar o cadastro.";
+  mostrarMensagem(dicaDados.textContent, "erro");
 }
 
-function prepararMeusDados() {
+function preencherFormulario() {
   const usuario = obterSessao()?.usuario ?? {};
-  listaDados.replaceChildren();
-  dicaDados.hidden = false;
-  formEditar.reset();
   formEditar.elements.nome.value = usuario.nome ?? "";
   formEditar.elements.email.value = usuario.email ?? "";
+  formEditar.elements.senha.value = "";
 }
 
 function exibirDados(usuario) {
   listaDados.replaceChildren();
-  for (const [rotulo, valor] of [["Id", usuario?.id], ["Nome", usuario?.nome], ["E-mail", usuario?.email]]) {
+  const papel = usuario?.admin === true ? "Administrador" : "Usuário comum";
+  for (const [rotulo, valor] of [["Id", usuario?.id], ["Nome", usuario?.nome], ["E-mail", usuario?.email], ["Papel", papel]]) {
     listaDados.append(criarElemento("dt", null, rotulo), criarElemento("dd", null, valor ?? "—"));
   }
   dicaDados.hidden = true;
@@ -37,19 +37,21 @@ function exibirDados(usuario) {
 function atualizarUsuarioDaSessao(usuario) {
   const sessao = obterSessao();
   if (!sessao || !usuario || typeof usuario !== "object") return;
-  sessao.usuario = { ...sessao.usuario, ...usuario };
+  sessao.usuario = { ...sessao.usuario, ...usuario, admin: sessao.usuario?.admin === true };
   salvarSessao(sessao);
-  exibirTela();
+  exibirIdentidade();
+  preencherFormulario();
 }
 
-async function consultarDados() {
+async function consultarDados(avisar) {
   const caminho = caminhoDoUsuario();
   if (!caminho) return semIdDoUsuario();
   const resposta = await enviarRequisicao("GET", caminho, undefined, true);
   if (resposta.ok) {
     exibirDados(resposta.corpo);
-    mostrarMensagem("Dados consultados.", "sucesso");
+    if (avisar) mostrarMensagem("Dados atualizados a partir do servidor.", "sucesso");
   } else if (resposta.status !== 401) {
+    dicaDados.textContent = "Não foi possível carregar seus dados.";
     mostrarMensagem(resposta.mensagem, "erro");
   }
 }
@@ -74,7 +76,6 @@ async function salvarAlteracoes(evento) {
   if (resposta.ok) {
     atualizarUsuarioDaSessao(resposta.corpo);
     exibirDados(resposta.corpo);
-    formEditar.elements.senha.value = "";
     mostrarMensagem("Dados atualizados.", "sucesso");
   } else if (resposta.status !== 401) {
     mostrarMensagem(resposta.mensagem, "erro");
@@ -91,18 +92,19 @@ async function excluirConta() {
   dialogoExclusao.close();
   if (resposta.ok) {
     limparSessao();
-    exibirTela();
-    mostrarMensagem("Conta excluída.", "sucesso");
+    irPara("/", "Conta excluída.");
   } else if (resposta.status !== 401) {
     mostrarMensagem(resposta.mensagem, "erro");
   }
 }
 
-botaoConsultar.addEventListener("click", () => comBotaoOcupado(botaoConsultar, consultarDados));
+botaoConsultar.addEventListener("click", () => comBotaoOcupado(botaoConsultar, () => consultarDados(true)));
 formEditar.addEventListener("submit", (e) => comBotaoOcupado(e.submitter ?? formEditar.querySelector("button"), () => salvarAlteracoes(e)));
 botaoExcluir.addEventListener("click", () => dialogoExclusao.showModal());
 botaoCancelarExclusao.addEventListener("click", () => dialogoExclusao.close());
 botaoConfirmarExclusao.addEventListener("click", () => comBotaoOcupado(botaoConfirmarExclusao, excluirConta));
-document.addEventListener("sessao-iniciada", prepararMeusDados);
 
-prepararMeusDados();
+if (paginaLiberada) {
+  preencherFormulario();
+  consultarDados(false);
+}

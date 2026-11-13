@@ -23,7 +23,11 @@ def criar_cliente():
 
     @app.get("/")
     def pagina():
-        return render_template("index.html")
+        return render_template("acesso.html", pagina="acesso", exige_sessao=False)
+
+    @app.get("/conta")
+    def pagina_conta():
+        return render_template("conta.html", pagina="conta", exige_sessao=True)
 
     @app.post("/enviar")
     def enviar():
