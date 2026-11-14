@@ -185,7 +185,7 @@ input:focus-visible, .botao:focus-visible, .menu a:focus-visible, .abas button:f
 .lista-dados { display: grid; grid-template-columns: max-content 1fr; gap: 10px 20px; margin: 0; }
 .lista-dados:empty { display: none; }
 .lista-dados dt { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--apagado); }
-.lista-dados dd { margin: 0; font-family: var(--fonte-dados); word-break: break-all; }
+.lista-dados dd { margin: 0; font-family: var(--fonte-dados); overflow-wrap: anywhere; }
 
 .etiqueta { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; }
 .etiqueta-adm { color: #1a1206; background: var(--dourado); }
@@ -283,3 +283,71 @@ td.destaque { font-weight: 600; }
 .etiqueta-comum { color: var(--lilas); border: 1px solid var(--lilas); }
 .aviso-forte { padding: 10px 12px; color: var(--coral); background: rgba(251, 113, 133, 0.1); border: 1px solid rgba(251, 113, 133, 0.45); border-radius: 8px; font-weight: 600; }
 .visualmente-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.grade-produtos { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: 24px; align-items: start; }
+.grade-produtos > * { min-width: 0; }
+@media (max-width: 960px) { .grade-produtos { grid-template-columns: 1fr; } }
+.acoes-topo { display: flex; gap: 8px; }
+.acoes-topo .botao { padding: 6px 14px; font-size: 0.85rem; }
+
+.lista-bilhetes { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.lista-bilhetes:empty { display: none; }
+.bilhete {
+  --canhoto: 132px;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--canhoto);
+  background: linear-gradient(135deg, var(--cartao-claro), var(--fundo-elevado));
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+}
+.bilhete::before, .bilhete::after {
+  content: "";
+  position: absolute;
+  right: calc(var(--canhoto) - 10px);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--cartao);
+  border: 1px solid var(--borda);
+}
+.bilhete::before { top: -11px; clip-path: inset(50% 0 0 0); }
+.bilhete::after { bottom: -11px; clip-path: inset(0 0 50% 0); }
+.bilhete-selecionado { border-color: var(--roxo); box-shadow: 0 0 0 1px var(--roxo), 0 8px 24px rgba(124, 58, 237, 0.25); }
+.bilhete-principal { padding: 14px 18px; min-width: 0; }
+.bilhete-numero { margin: 0; font: 0.75rem var(--fonte-dados); letter-spacing: 0.12em; color: var(--dourado); }
+.bilhete-nome { margin: 2px 0 4px; font-size: 1.05rem; font-weight: 700; overflow-wrap: anywhere; }
+.bilhete-descricao { margin: 0; color: var(--apagado); font-size: 0.88rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.bilhete-canhoto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 12px;
+  border-left: 2px dashed var(--borda);
+  text-align: center;
+}
+.bilhete-quantidade { margin: 0; font: 700 1.7rem/1 var(--fonte-dados); color: var(--dourado); }
+.bilhete-quantidade.esgotado { color: var(--coral); }
+.bilhete-unidade { margin: 0 0 8px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--apagado); }
+
+.estoque-destaque { display: flex; align-items: baseline; gap: 10px; margin: 0 0 16px; }
+#estoque-valor { font: 700 2.4rem/1 var(--fonte-dados); color: var(--dourado); }
+.estoque-rotulo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--apagado); }
+.rotulo-formulario { margin: 0; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dourado); }
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font: 0.95rem/1.45 var(--fonte);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--texto);
+  background: var(--fundo-elevado);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  resize: vertical;
+}
+textarea:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+.campo-quantidade input { max-width: 12rem; }
+@media (max-width: 520px) { .bilhete { --canhoto: 108px; } }

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block titulo %}Produtos{% endblock %}
+{% block conteudo %}
+<div class="grade-produtos">
+  <section class="cartao" aria-labelledby="titulo-produtos">
+    <header class="cartao-topo">
+      <h1 id="titulo-produtos">Produtos em estoque</h1>
+      <div class="acoes-topo">
+        <button id="botao-novo-produto" type="button" class="botao botao-principal" hidden>Novo produto</button>
+        <button id="botao-atualizar-produtos" type="button" class="botao botao-secundario">Atualizar</button>
+      </div>
+    </header>
+    <div class="cartao-corpo">
+      <p id="dica-produtos" class="apagado">Carregando produtos do servidor…</p>
+      <ul id="lista-produtos" class="lista-bilhetes"></ul>
+    </div>
+  </section>
+
+  <section class="cartao" aria-labelledby="titulo-produto">
+    <header class="cartao-topo">
+      <h2 id="titulo-produto">Produto selecionado</h2>
+      <span class="cartao-detalhe" id="id-produto"></span>
+    </header>
+    <div class="cartao-corpo">
+      <p id="produto-vazio" class="apagado">Clique em "Consultar" em um produto para ver o estoque atual.</p>
+
+      <div id="produto-ver" hidden>
+        <p class="estoque-destaque"><span id="estoque-valor">0</span><span class="estoque-rotulo">em estoque</span></p>
+        <dl id="dados-produto" class="lista-dados"></dl>
+        <div class="acoes" id="acoes-adm-produto" hidden>
+          <button id="botao-editar-produto" type="button" class="botao botao-principal">Editar</button>
+          <button id="botao-excluir-produto" type="button" class="botao botao-perigo">Excluir</button>
+        </div>
+      </div>
+
+      <form id="form-produto" class="formulario" novalidate hidden>
+        <p class="rotulo-formulario" id="titulo-form-produto">Novo produto</p>
+        <label class="campo">Nome <input name="nome" type="text" autocomplete="off"></label>
+        <label class="campo">Descrição <textarea name="descricao" rows="3"></textarea></label>
+        <label class="campo campo-quantidade">Quantidade <input name="quantidade" type="text" inputmode="numeric" autocomplete="off"></label>
+        <div class="acoes">
+          <button type="submit" class="botao botao-principal" id="botao-salvar-produto">Cadastrar</button>
+          <button id="botao-cancelar-produto" type="button" class="botao botao-secundario">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<dialog id="dialogo-exclusao-produto" class="dialogo" aria-labelledby="titulo-exclusao-produto">
+  <h2 id="titulo-exclusao-produto">Excluir produto?</h2>
+  <p id="texto-exclusao-produto"></p>
+  <div class="acoes acoes-dialogo">
+    <button id="botao-cancelar-exclusao-produto" type="button" class="botao botao-secundario">Cancelar</button>
+    <button id="botao-confirmar-exclusao-produto" type="button" class="botao botao-perigo-cheio">Excluir</button>
+  </div>
+</dialog>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='produtos.js') }}"></script>{% endblock %}

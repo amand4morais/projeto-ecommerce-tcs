@@ -29,6 +29,10 @@ def criar_cliente():
     def pagina_conta():
         return render_template("conta.html", pagina="conta", exige_sessao=True)
 
+    @app.get("/produtos")
+    def pagina_produtos():
+        return render_template("produtos.html", pagina="produtos", exige_sessao=True)
+
     @app.get("/usuarios")
     def pagina_usuarios():
         return render_template("usuarios.html", pagina="usuarios", exige_sessao=True, exige_admin=True)

@@ -86,6 +86,13 @@ class TestEnviar(unittest.TestCase):
         for trecho in ('id="form-editar"', 'id="dialogo-exclusao"', 'data-exige-sessao="sim"', "minha_conta.js"):
             self.assertIn(trecho, pagina)
 
+    def test_pagina_produtos(self):
+        r = self.cliente.get("/produtos")
+        self.assertEqual(r.status_code, 200)
+        pagina = r.get_data(as_text=True)
+        for trecho in ('data-exige-sessao="sim"', 'data-exige-admin="nao"', 'id="lista-produtos"', 'id="form-produto"', "produtos.js"):
+            self.assertIn(trecho, pagina)
+
     def test_pagina_usuarios(self):
         r = self.cliente.get("/usuarios")
         self.assertEqual(r.status_code, 200)

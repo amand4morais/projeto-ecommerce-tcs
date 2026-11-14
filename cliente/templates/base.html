@@ -18,6 +18,7 @@
       </div>
       <nav class="menu" id="menu" aria-label="Páginas" hidden>
         <a href="{{ url_for('pagina_conta') }}" {% if pagina == 'conta' %}aria-current="page"{% endif %}>Minha conta</a>
+        <a href="{{ url_for('pagina_produtos') }}" {% if pagina == 'produtos' %}aria-current="page"{% endif %}>Produtos</a>
         <a href="{{ url_for('pagina_usuarios') }}" id="menu-usuarios" hidden {% if pagina == 'usuarios' %}aria-current="page"{% endif %}>Usuários</a>
       </nav>
       <div class="identidade">
